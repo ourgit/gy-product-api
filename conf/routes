@@ -1,0 +1,109 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+# Default path will just redirect to the computer list
+GET         /                                                      controllers.TestController.index()
+POST        /v1/p/other/                                           controllers.TestController.updateXS(request:Request)
+GET         /v1/p/prefatch_json/KSDuoifXCmxuoisd/                  controllers.TestController.preFetch(request:Request)
+#login and logout
+GET         /v1/p/prefetch/                                        controllers.ProductController.preFetch(request:Request)
+GET         /v1/p/prefetch2/                                       controllers.ProductController.preFetch2(request:Request)
+GET         /v1/p/categories/                                      controllers.ProductController.listCategories(filter:String?="")
+GET         /v1/p/filter_product_categories/:parentId/             controllers.ProductController.listProductCategoriesByParentId(parentId:Long)
+GET         /v1/p/top_merchant_categories/:childrenId/             controllers.ProductController.listTopParentCategory(childrenId:Long)
+GET         /v1/p/products_by_classify/                            controllers.ProductController.listProductsByClassify(request:Request,classifyCode:String,page:Int?=1)
+GET         /v1/p/products_by_classify_id/                         controllers.ProductController.listProductsByClassifyId(request:Request,classifyId:Long,page:Int?=1)
+POST        /v1/p/products/                                        controllers.ProductController.listProducts(request:Request)
+GET         /v1/p/products/:productId/                             controllers.ProductController.getProductDetail(request:Request,productId:Long)
+POST        /v1/p/product_search/                                  controllers.ProductController.searchProducts(request:Request)
+GET         /v1/p/search_keywords/                                 controllers.ProductController.searchKeywords(request:Request)
+GET         /v1/p/product_tabs/                                    controllers.ProductController.listProductTabs
+GET         /v1/p/product_tabs/:id/                                controllers.ProductController.getProductTab(request:Request,id:Long,page:Int?=1)
+GET         /v1/p/default_recommend_products/                      controllers.ProductController.listDefaultRecommendProducts(request:Request,page:Int?=1)
+GET         /v1/p/more_products/                                   controllers.ProductController.listMoreProducts(request:Request,productId:Long?=0)
+
+GET         /v1/p/mix_options/:mixCode/                            controllers.ProductController.listMixOptions(mixCode:String)
+GET         /v1/p/shopping_cart/                                   controllers.ProductController.listProductsOnMyCart(request:Request)
+POST        /v1/p/shopping_cart/new/                               controllers.ProductController.addToCart(request:Request)
+POST        /v1/p/shopping_cart/                                   controllers.ProductController.removeFromCart(request:Request)
+POST        /v1/p/shopping_cart/:shoppingCartId/                   controllers.ProductController.changeProductAmountAtCart(request:Request,shoppingCartId:Long)
+POST        /v1/p/products/by_category/                            controllers.ProductController.listProductsByCategoryId(request:Request)
+
+GET         /v1/p/mail_fee/                                        controllers.ProductController.getMailFee(totalFee:Double?=0, provinceCode:String?="",totalWeight:Double?=0)
+GET         /v1/p/region_json/                                     controllers.ProductController.getRegionJson
+
+GET         /v1/p/comment_list/                                    controllers.ProductController.listComment(productId:Long,page:Int?=1,hasAppendComment:Int?=0)
+POST        /v1/p/comment/                                         controllers.ProductController.placeComment(request:Request)
+GET         /v1/p/my_comment_list/                                 controllers.ProductController.listMyComment(request:Request,page:Int?=1)
+GET         /v1/p/brands/:brandId/                                 controllers.ProductController.getBrand(brandId:Long)
+GET         /v1/p/brands/                                          controllers.ProductController.listBrands
+GET         /v1/p/score_to_use/                                    controllers.ProductController.calcScoreToUse(request:Request,totalAmount:Double?=0)
+GET         /v1/p/products_by_tag/                                 controllers.ProductController.listProductsByTag(request:Request,tag:String,page:Int?=1)
+GET         /v1/p/special_topics/                                  controllers.ProductController.listSpecialTopics(request:Request)
+GET         /v1/p/special_topics/:id/                              controllers.ProductController.getSpecialTopics(id:Long)
+GET         /v1/p/flash_sales/                                     controllers.ProductController.listFlashsales
+GET         /v1/p/shop/:id/                                        controllers.ProductController.getShop(request:Request,id:Long)
+GET         /v1/p/today_flash_sales/                               controllers.ProductController.listTodayFlashsales(page:Int?=1)
+#GET         /v1/p/tomorrow_flash_sales/                       controllers.ProductController.listTomorrowFlashsales(page:Int?=1)
+GET         /v1/p/stock_sold_amount/                               controllers.ProductController.stockSoldAmount(request:Request)
+
+POST        /v1/p/fav/                                             controllers.ProductController.fav(request:Request)
+POST        /v1/p/batch_del_fav/                                   controllers.ProductController.batchDeleteFav(request:Request)
+POST        /v1/p/shopping_cart_item/                              controllers.ProductController.enableCartItem(request:Request)
+GET         /v1/p/products_by_coupon/                              controllers.ProductController.listProductsByCouponId(configId:Long)
+GET         /v1/p/coupon_list/                                     controllers.ProductController.couponList(request:Request,page:Int?=1)
+GET         /v1/p/browse_logs/                                     controllers.ProductController.listBrowseLogs(request:Request,page:Int?=1)
+
+GET         /v1/p/out_stock_reg_list/                              controllers.ProductController.outStockRegList(request:Request,page:Int?=1)
+POST        /v1/p/out_stock_reg/                                   controllers.ProductController.outStockReg(request:Request)
+POST        /v1/p/cancel_out_stock_reg/                            controllers.ProductController.cancelOutStockReg(request:Request)
+GET         /v1/p/regular_purchase_products/                       controllers.ProductController.listRegularPurchaseOrders(request:Request,buyType:Int?=1,page:Int?=1)
+GET         /v1/p/classify_list/                                   controllers.ProductController.listClassify(request:Request)
+GET         /v1/p/mail_fee_list/                                   controllers.ProductController.listMailFee()
+POST        /v1/p/clear_search_keyword/                            controllers.ProductController.clearSearchKeyword(request:Request)
+#GET         /v1/p/shop_products/:shopId/                           controllers.ProductController.listShopProducts(request:Request,shopId:Long,page:Int?=1)
+GET         /v1/p/shop_list/                                       controllers.ProductController.listShops(request:Request,page:Int?=1,filter:String?="")
+POST        /v1/p/shop_fav/                                        controllers.ProductController.favShop(request:Request)
+GET         /v1/p/search_shop_keywords/                            controllers.ProductController.searchShopKeywords(request:Request)
+POST        /v1/p/clear_search_shop_keywords/                      controllers.ProductController.clearShopKeywords(request:Request)
+POST        /v1/p/clear_search_product_keywords/                   controllers.ProductController.clearProductKeywords(request:Request)
+GET         /v1/p/my_favs/                                         controllers.ProductController.listMyFavs(request: Request)
+POST        /v1/p/groupon_products/                                controllers.ProductController.listGrouponProducts(request: Request)
+GET         /v1/p/recommend_products/:productId/                   controllers.ProductController.listRecommendProducts(request: Request,productId:Long)
+GET         /v1/p/activity_avatars/:activityType/                  controllers.ProductController.listActivityAvatars(request: Request,activityType:Long)
+GET         /v1/p/activity_users/                                  controllers.ProductController.listActivityUsers(request: Request)
+POST        /v1/p/combo_products/                                  controllers.ProductController.listComboProducts(request: Request)
+
+GET         /v1/p/shop_categories/                                 controllers.ProductController.listShopCategories(shopId:Long,filter: String?="")
+GET         /v1/p/filter_shop_product_categories/:parentId/        controllers.ProductController.listShopProductCategoriesByParentId(parentId:Long)
+GET         /v1/p/shop_top_product_categories/:childrenId/         controllers.ProductController.listShopTopParentCategory(childrenId:Long)
+POST        /v1/p/shop_products/                                   controllers.ProductController.listShopProducts(request: Request)
+POST        /v1/p/shop_products_by_category/                       controllers.ProductController.listShopProductsByCategoryId(request: Request)
+GET         /v1/p/top_shop_list/                                   controllers.ProductController.listTopShops(request: Request)
+GET         /v1/p/enroll_content/:orderId/                         controllers.ProductController.getEnrollContent(request: Request,orderId:Long)
+
+GET         /v1/p/shop_top_products/:shopId/                       controllers.ProductController.listShopTopProducts(request: Request,shopId:Long,page:Int?=1)
+GET         /v1/p/platform_top_products/                           controllers.ProductController.listPlatformTopProducts(request: Request,page:Int?=1)
+GET         /v1/p/my_shop_favs/                                    controllers.ProductController.listFavShops(request: Request,page:Int?=1)
+GET         /v1/p/activity_users_views/                            controllers.ProductController.listActivityViewsAndAvatar(request: Request)
+
+POST        /v1/p/my_shop_products/                                controllers.ProductController.listMyShopProducts(request: Request)
+POST        /v1/p/products/:productId/                             controllers.ProductController.updateProduct(request: Request,productId:Long)
+POST        /v1/p/shop/                                            controllers.ProductController.updateShopStatus(request: Request)
+
+GET         /v1/p/articles/                                        controllers.ArticleController.listArticles(page:Int?=1,cateName:String)
+GET         /v1/p/articles/:articleId/                             controllers.ArticleController.getArticle(request: Request,articleId:Long)
+POST        /v1/p/articles/fav/                                    controllers.ArticleController.fav(request: Request)
+GET         /v1/p/param_config/                                    controllers.ArticleController.getParamConfig(key:String)
+GET         /v1/p/carousels/                                       controllers.CarouselController.listCarousel(request: Request,bizType:Int?=0,clientType:Int?=0)
+GET         /v1/p/weather/                                         controllers.ArticleController.getWeather(request: Request)
+
+GET         /v1/p/assist_config_list/                              controllers.ActivityController.listAssistConfigs(request: Request,page:Int?=1)
+GET         /v1/p/member_assist/:id/                               controllers.ActivityController.getMemberAssistDetail(request: Request,id:Long)
+GET         /v1/p/assist_succeed_launchers/:assistId/              controllers.ActivityController.listAssistSucceedLaunchers(request: Request,assistId:Long,page:Int?=1)
+
+
+# Map static resources from the /public folder to the /assets URL path
+GET         /*file                                                 controllers.Assets.versioned(path="/public", file: Asset)
+
