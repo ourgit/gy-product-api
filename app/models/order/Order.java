@@ -58,10 +58,10 @@ public class Order extends Model {
     public static final int ORDER_TYPE_LIFE_PAYMENT = 4;
     public static final int ORDER_TYPE_ENROLL = 5;
     public static final int ORDER_TYPE_THIRD_DISCOUNT = 6;
+    public static final int ORDER_TYPE_SCORE = 10;
 
     public static final int ORDER_ACTIVITY_TYPE_NORMAL = 1;
     public static final int ORDER_ACTIVITY_TYPE_FLASH_SALE = 3;
-    public static final int ORDER_ACTIVITY_TYPE_SCORE = 4;
     public static final int ORDER_ACTIVITY_WHOLESALE = 5;
 
     //秒杀团

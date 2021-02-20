@@ -28,6 +28,9 @@ public class EnrollContentUserInfo extends Model {
     @Column(name = "order_id")
     public long orderId;
 
+    @Column(name = "product_id")
+    public long productId;
+
     @Column(name = "phone_number")
     public String phoneNumber;
 
@@ -90,5 +93,13 @@ public class EnrollContentUserInfo extends Model {
 
     public void setOrderId(long orderId) {
         this.orderId = orderId;
+    }
+
+    public long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(long productId) {
+        this.productId = productId;
     }
 }

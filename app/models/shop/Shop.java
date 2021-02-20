@@ -40,6 +40,9 @@ public class Shop extends Model {
     @Column(name = "run_type")
     public int runType;
 
+    @Column(name = "shop_level")
+    public int shopLevel;
+
     @Column(name = "name")
     @Constraints.Required
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
@@ -456,6 +459,14 @@ public class Shop extends Model {
 
     public void setDadaUserNo(String dadaUserNo) {
         this.dadaUserNo = dadaUserNo;
+    }
+
+    public int getShopLevel() {
+        return shopLevel;
+    }
+
+    public void setShopLevel(int shopLevel) {
+        this.shopLevel = shopLevel;
     }
 
     @Override

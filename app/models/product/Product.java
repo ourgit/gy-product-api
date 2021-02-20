@@ -37,11 +37,12 @@ public class Product extends Model {
     public static final int TYPE_SERVICE_PRODUCT = 2;
     public static final int TYPE_THIRD_RUN = 3;
     public static final int TYPE_ENROLL = 4;
+    public static final int TYPE_SCORE = 10;
 
     public static final int ACTIVITY_TYPE_NORMAL = 1;
     public static final int ACTIVITY_TYPE_GROUPON = 2;
     public static final int ACTIVITY_TYPE_FLASH = 3;
-    public static final int ACTIVITY_TYPE_SCORE = 4;
+    public static final int ACTIVITY_TYPE_SCORE = TYPE_SCORE;
     public static final int ACTIVITY_TYPE_WHOLESALE = 5;
 
     @Column(name = "id")

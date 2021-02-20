@@ -16,7 +16,7 @@ import java.util.Base64;
 public class EncodeUtils {
 
     private static final String md5salt = "xkxOIUDxclkjk96690";
-    public static final String API_SALT = "https://fqweixin.com/ever/";
+    public static final String API_SALT = "https://g.starnew.cn/cent/";
     public static String key = "kG02XDFSLlksdjXc"; // 128 bit key
 
     /**

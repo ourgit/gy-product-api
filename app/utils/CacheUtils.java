@@ -105,6 +105,10 @@ public class CacheUtils {
         return RedisKeyConstant.MERCHANTS_CATEGORIES_LIST_CACHE_BY_PARENT_ID_PREFIX + parentId;
     }
 
+    public String getScoreCategories() {
+        return RedisKeyConstant.SCORE_CATEGORIES;
+    }
+
     public String getShopCategoryJsonCacheByParentId(long parentId) {
         return RedisKeyConstant.SHOP_PRODUCT_CATEGORIES_LIST_CACHE_BY_PARENT_ID_PREFIX + parentId;
     }
@@ -355,6 +359,10 @@ public class CacheUtils {
 
     public String getProductsJsonCache() {
         return PRODUCT_JSON_CACHE;
+    }
+
+    public String getScoreProductsJsonCache(long categoryId, int page) {
+        return SCORE_PRODUCT_JSON_CACHE + categoryId + ":" + page;
     }
 
     public void updateProductJsonCache(Product product) {

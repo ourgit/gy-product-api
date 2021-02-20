@@ -3020,11 +3020,14 @@ public class ProductController extends BaseController {
         return CompletableFuture.supplyAsync(() -> {
             JsonNode jsonNode = request.body().asJson();
             int page = jsonNode.findPath("page").asInt();
+            int status = jsonNode.findPath("status").asInt();
             long shopId = jsonNode.findPath("shopId").asLong();
             String filter = jsonNode.findPath("filter").asText();
             ExpressionList<Product> expressionList = Product.find.query().where()
-                    .eq("shopId", shopId)
-                    .ge("status", Product.STATUS_ON_SHELVE);
+                    .eq("shopId", shopId);
+            if (status > 0) {
+                expressionList.eq("status", status);
+            }
             if (!ValidationUtil.isEmpty(filter)) {
                 expressionList.or(Expr.icontains("name", filter), Expr.icontains("keywords", filter));
             }
@@ -3294,7 +3297,7 @@ public class ProductController extends BaseController {
     /**
      * @api {GET} /v1/p/my_favs/ 52我的收藏列表
      * @apiName listMyFavs
-     * @apiGroup Timeline
+     * @apiGroup Product
      * @apiSuccess (Success 200) {int} code 200 请求成功
      * @apiSuccess (Success 200) {JsonObject} articleFavlist 文章收藏列表
      * @apiSuccess (Success 200) {JsonObject} barFavList 酒吧收藏列表
@@ -3818,19 +3821,19 @@ public class ProductController extends BaseController {
                     .orderBy().asc("id")
                     .setMaxRows(9)
                     .findList();
-            list.parallelStream().forEach((each) -> {
-                CouponConfig couponConfig = CouponConfig.find.query()
-                        .where().eq("status", CouponConfig.STATUS_ENABLE)
-                        .icontains("shopIds", "/" + each.id + "/")
-                        .orderBy().desc("amount")
-                        .setMaxRows(1)
-                        .findOne();
-                if (null != couponConfig) {
-                    couponConfig.setShopIds("");
-                    couponConfig.setShopNames("");
-                    each.couponConfig = couponConfig;
-                }
-            });
+//            list.parallelStream().forEach((each) -> {
+//                CouponConfig couponConfig = CouponConfig.find.query()
+//                        .where().eq("status", CouponConfig.STATUS_ENABLE)
+//                        .icontains("shopIds", "/" + each.id + "/")
+//                        .orderBy().desc("amount")
+//                        .setMaxRows(1)
+//                        .findOne();
+//                if (null != couponConfig) {
+//                    couponConfig.setShopIds("");
+//                    couponConfig.setShopNames("");
+//                    each.couponConfig = couponConfig;
+//                }
+//            });
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             result.set("list", Json.toJson(list));
@@ -4058,7 +4061,9 @@ public class ProductController extends BaseController {
                     .eq("shopId", memberProfile.orgId);
             if (status != 0) expressionList.eq("status", status);
             if (categoryId != 0) expressionList.icontains("categoryId", categoryId + "");
-            if (!ValidationUtil.isEmpty(filter)) expressionList.icontains("filter", filter);
+            if (!ValidationUtil.isEmpty(filter)) {
+                expressionList.or(Expr.icontains("name", filter), Expr.icontains("details", filter));
+            }
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             PagedList<Product> pagedList = expressionList.orderBy().desc("sort")
@@ -4441,4 +4446,159 @@ public class ProductController extends BaseController {
         });
     }
 
+    /**
+     * @api {POST} /v1/p/has_enroll/ 71根据商品ID查询报名情况
+     * @apiName listEnrollStatus
+     * @apiGroup Product
+     * @apiParam {Array} productIdList 商品IDList
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     */
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> listEnrollStatus(Http.Request request) {
+        return businessUtils.getUserIdByAuthToken2(request).thenApplyAsync((member) -> {
+            JsonNode requestNode = request.body().asJson();
+            if (null == requestNode) return okCustomJson(CODE40001, "参数错误");
+            if (!requestNode.has("productIdList")) okCustomJson(CODE40001, "请传送商品ID数组");
+            ArrayNode nodes = (ArrayNode) requestNode.findPath("productIdList");
+            Set<Long> set = new HashSet<>();
+            nodes.forEach((each) -> set.add(each.asLong()));
+            if (set.size() < 1) return okJSON200();
+            ObjectNode result = Json.newObject();
+            result.put(CODE, CODE200);
+            ArrayNode list = Json.newArray();
+            if (null == member) {
+                set.forEach((each) -> {
+                    ObjectNode node = Json.newObject();
+                    node.put("productId", each);
+                    node.put("hasEnroll", false);
+                    list.add(node);
+                });
+                result.set("list", list);
+                return ok(result);
+            }
+            Map<Long, Boolean> map = new ConcurrentHashMap<>();
+            set.parallelStream().forEach((each) -> {
+                EnrollContentUserInfo exist = EnrollContentUserInfo.find.query().where()
+                        .eq("uid", member.id)
+                        .eq("productId", each)
+                        .setMaxRows(1)
+                        .findOne();
+                boolean hasEnroll = null != exist ? true : false;
+                map.put(each, hasEnroll);
+            });
+            map.forEach((k, v) -> {
+                ObjectNode node = Json.newObject();
+                node.put("productId", k);
+                node.put("hasEnroll", v);
+                list.add(node);
+            });
+            result.set("list", list);
+            return ok(result);
+        });
+    }
+
+
+    /**
+     * @api {POST} /v1/p/score_products/ 72积分商品列表
+     * @apiName listScoreProducts
+     * @apiGroup Product
+     * @apiParam {int} [page] 页面
+     * @apiParam {long} categoryId 分类id
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     * @apiSuccess (Success 200) {int} pages 页数
+     * @apiSuccess (Success 200) {JsonArray} list 列表
+     * @apiSuccess (Success 200){String} name 名称
+     * @apiSuccess (Success 200){String} coverImgUrl 商品封面大图
+     * @apiSuccess (Success 200){String} poster 商品海报大图
+     * @apiSuccess (Success 200){long} categoryId 分类id
+     * @apiSuccess (Success 200){int} stock 库存
+     * @apiSuccess (Success 200){long} soldAmount 已卖数量
+     * @apiSuccess (Success 200){int} marketPrice 市场价,以元为单位
+     * @apiSuccess (Success 200){int} price 现价,以元为单位
+     */
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> listScoreProducts(Http.Request request) {
+        JsonNode requestNode = request.body().asJson();
+        return CompletableFuture.supplyAsync(() -> {
+            ObjectNode result = Json.newObject();
+            result.put(CODE, CODE200);
+
+            long categoryId = requestNode.findPath("categoryId").asLong();
+            int page = requestNode.findPath("page").asInt();
+            String jsonCacheKey = cacheUtils.getScoreProductsJsonCache(categoryId, page);
+            //第一页需要缓存，从缓存读取
+            Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
+            if (cacheOptional.isPresent()) {
+                String node = cacheOptional.get();
+                if (null != node) return ok(Json.parse(node));
+            }
+            ExpressionList<Product> expressionList = Product.find.query().where()
+                    .ge("status", Product.STATUS_ON_SHELVE)
+                    .eq("productType", Product.TYPE_SCORE);
+            if (categoryId > 0) expressionList.icontains("categoryId", categoryId + "");
+            PagedList<Product> pagedList = expressionList.setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                    .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                    .findPagedList();
+            int pages = pagedList.getTotalPageCount();
+            List<Product> list = pagedList.getList();
+            list.parallelStream().forEach((each) -> setProductDetail(each));
+            result.put("pages", pages);
+            result.put("hasNext", pagedList.hasNext());
+            result.set("list", Json.toJson(list));
+            cache.set(jsonCacheKey, Json.stringify(result), 1 * 60);
+            return ok(result);
+        });
+    }
+
+    /**
+     * @api {GET} /v1/p/score_product_categories/ 73获取积分商城的分类
+     * @apiName listScoreProductCategories
+     * @apiGroup Product
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     * @apiSuccess (Success 200) {int} pages 页数
+     * @apiSuccess (Success 200) {JsonArray} list 列表
+     * @apiSuccess (Success 200){long} id 分类id
+     * @apiSuccess (Success 200){String} name 名称
+     * @apiSuccess (Success 200){String} imgUrl 图片
+     * @apiSuccess (Success 200){String} poster 海报图片
+     * @apiSuccess (Success 200){long} soldAmount 已售数量
+     * @apiSuccess (Success 200){int} show 1显示2不显示
+     * @apiSuccess (Success 200){int} sort 排序顺序
+     * @apiSuccess (Success 200){JsonArray} children 子分类列表
+     * @apiSuccess (Success 200){string} updateTime 更新时间
+     */
+    public CompletionStage<Result> listScoreProductCategories() {
+        return CompletableFuture.supplyAsync(() -> {
+            String key = cacheUtils.getScoreCategories();
+            Optional<String> cacheOptional = cache.getOptional(key);
+            if (cacheOptional.isPresent()) {
+                String node = cacheOptional.get();
+                if (ValidationUtil.isEmpty(node)) return ok(Json.parse(node));
+            }
+            Category category = Category.find.query().where().eq("name", "积分商城")
+                    .orderBy().asc("id")
+                    .setMaxRows(1)
+                    .findOne();
+            if (null == category) return okJSON200();
+
+            List<Category> list = Category.find.query().where()
+                    .eq("show", Category.SHOW_CATEGORY)
+                    .eq("parentId", category.id)
+                    .orderBy()
+                    .desc("sort")
+                    .findList();
+            ObjectNode result = Json.newObject();
+            ArrayNode nodes = Json.newArray();
+            list.forEach((each) -> {
+                ObjectNode node = Json.newObject();
+                node.put("id", each.id);
+                node.put("name", each.name);
+                nodes.add(node);
+            });
+            result.put(CODE, CODE200);
+            result.set("list", nodes);
+            cache.set(key, Json.stringify(result), 1 * 60);
+            return ok(result);
+        });
+    }
 }
