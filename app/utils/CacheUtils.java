@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.stream.IntStream;
 
 import static constants.RedisKeyConstant.*;
+import static constants.RedisKeyConstant.SEARCH_KEYWORDS_JSON_CACHE;
 
 /**
  * cache utils
@@ -278,6 +279,9 @@ public class CacheUtils {
 
     public String getShopKeywordsJsonCache() {
         return SHOP_SEARCH_KEYWORDS_JSON_CACHE;
+    }
+    public String getSearchKeywordsJsonCache() {
+        return  SEARCH_KEYWORDS_JSON_CACHE;
     }
 
     public String getProductTabJsonCache() {

@@ -542,6 +542,7 @@ public class RedisKeyConstant {
     public static final String RECOMMEND_PRODUCT_KEY = "RECOMMEND_PRODUCT_KEY:";
     public static final String RELATE_PRODUCT_KEY = "RELATE_PRODUCT_KEY:";
     public static final String SHOP_SEARCH_KEYWORDS_JSON_CACHE = "SHOP_SEARCH_KEYWORDS_JSON_CACHE:";
+    public static final String SEARCH_KEYWORDS_JSON_CACHE = "SEARCH_KEYWORDS_JSON_CACHE:";
 
     public static final String PRODUCT_FAVOR_CACHE = "PRODUCT_FAVOR_CACHE:";
     public static final String PRODUCT_MAIL_FEE_LIST_JSON_CACHE = "PRODUCT_MAIL_FEE_LIST_JSON_CACHE:";

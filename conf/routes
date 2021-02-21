@@ -91,6 +91,10 @@ GET         /v1/p/activity_users_views/                            controllers.P
 POST        /v1/p/my_shop_products/                                controllers.ProductController.listMyShopProducts(request: Request)
 POST        /v1/p/products/:productId/                             controllers.ProductController.updateProduct(request: Request,productId:Long)
 POST        /v1/p/shop/                                            controllers.ProductController.updateShopStatus(request: Request)
+POST        /v1/p/has_enroll/                                      controllers.ProductController.listEnrollStatus(request: Request)
+POST        /v1/p/score_products/                                  controllers.ProductController.listScoreProducts(request: Request)
+GET         /v1/p/score_product_categories/                        controllers.ProductController.listScoreProductCategories()
+GET         /v1/p/homepage_search_keywords/                        controllers.ProductController.listHomepageSearchKeywords(request: Request)
 
 GET         /v1/p/articles/                                        controllers.ArticleController.listArticles(page:Int?=1,cateName:String)
 GET         /v1/p/articles/:articleId/                             controllers.ArticleController.getArticle(request: Request,articleId:Long)

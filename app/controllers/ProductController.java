@@ -4601,4 +4601,35 @@ public class ProductController extends BaseController {
             return ok(result);
         });
     }
+
+    /**
+     * @api {GET} /v1/p/homepage_search_keywords/ 74首页搜索关键字
+     * @apiName listHomepageSearchKeywords
+     * @apiGroup Product
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     * @apiSuccess (Success 200) {JsonArray} list 关键字列表
+     * @apiSuccess (Success 200) {String} keyword 关键字
+     * @apiSuccess (Success 200) {JsonArray} searchLogList 历史搜索（自己的）
+     * @apiSuccess (Success 200) {String} keyword_ 关键字
+     */
+    public CompletionStage<Result> listHomepageSearchKeywords(Http.Request request) {
+        return CompletableFuture.supplyAsync(() -> {
+            String jsonCacheKey = cacheUtils.getShopKeywordsJsonCache();
+            Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
+            if (cacheOptional.isPresent()) {
+                String node = cacheOptional.get();
+                if (!ValidationUtil.isEmpty(node)) {
+                    return ok(node);
+                }
+            }
+            List<SearchKeyword> list = SearchKeyword.find.query().orderBy()
+                    .desc("sort").setMaxRows(30).findList();
+            ObjectNode result = Json.newObject();
+            result.put(CODE, CODE200);
+            result.set("list", Json.toJson(list));
+            cache.set(jsonCacheKey, Json.stringify(result));
+            return ok(result);
+        });
+    }
+
 }
