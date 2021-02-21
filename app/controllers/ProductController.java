@@ -3438,6 +3438,12 @@ public class ProductController extends BaseController {
      * @apiGroup Product
      * @apiSuccess (Success 200) {int} code 200 请求成功
      */
+    /**
+     * @api {GET}  /v1/p/activity_users/  18活动用户数量
+     * @apiName listActivityUsers
+     * @apiGroup Product
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     */
     public CompletionStage<Result> listActivityUsers(Http.Request request) {
         return CompletableFuture.supplyAsync(() -> {
             String today = dateUtils.getToday();
