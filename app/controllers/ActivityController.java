@@ -5,8 +5,7 @@ import constants.BusinessConstant;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
 import models.product.Product;
-import models.promotion.AssistConfig;
-import models.promotion.CardCouponConfig;
+import models.promotion.*;
 import models.user.AssistMember;
 import models.user.Member;
 import models.user.MemberAssist;
@@ -29,6 +28,8 @@ import static constants.BusinessConstant.CARD_COUPON_FOR_ASSIST;
 public class ActivityController extends BaseController {
     public static final String ASSIST_LIST_JSON_CACHE = "ASSIST_LIST_JSON_CACHE:";
     public static final String ASSIST_LIST_LAUNCHERS_JSON_CACHE = "ASSIST_LIST_LAUNCHERS_JSON_CACHE:";
+    public static final String BARGAIN_LIST_JSON_CACHE = "BARGAIN_LIST_JSON_CACHE:";
+    public static final String BARGAIN_LIST_LAUNCHERS_JSON_CACHE = "BARGAIN_LIST_LAUNCHERS_JSON_CACHE:";
 
     /**
      * @api {GET} /v1/p/assist_config_list/?page=&status 01助力配置列表
@@ -190,6 +191,155 @@ public class ActivityController extends BaseController {
                     .setMaxRows(BusinessConstant.PAGE_SIZE_20)
                     .findPagedList();
             List<MemberAssist> list = pagedList.getList();
+            ObjectNode result = Json.newObject();
+            result.put("hasNext", pagedList.hasNext());
+            result.put(CODE, CODE200);
+            result.set("list", Json.toJson(list));
+            cache.set(jsonCacheKey, Json.stringify(result), 2);
+            return ok(result);
+        });
+    }
+
+    /**
+     * @api {GET} /v1/p/bargain_config_list/?page=&status 04砍价配置列表
+     * @apiName listBargainConfigs
+     * @apiGroup ASSIST
+     * @apiSuccess (Success 200){JsonArray} list 订单列表
+     * @apiSuccess (Success 200){String} title  标题
+     * @apiSuccess (Success 200){String} content 详情
+     * @apiSuccess (Success 200){String} ruleContent 规则说明
+     * @apiSuccess (Success 200){int} requireInvites 需要邀请人数
+     * @apiSuccess (Success 200){String} imgUrl 封面图片
+     * @apiSuccess (Success 200){String} beginTime 开始时间
+     * @apiSuccess (Success 200){String} endTime 结束时间
+     * @apiSuccess (Success 200){String} expireHours 用户领取后的有效时间,以小时为单位
+     * @apiSuccess (Success 200){int} status 1生效，2失效
+     * @apiSuccess (Success 200){long} needPayMoney 底价
+     * @apiSuccess (Success 200){long} productId productId
+     * @apiSuccess (Success 200){long} skuId skuId
+     * @apiSuccess (Success 200){long} alreadySucceedCount 已成功砍价数
+     * @apiSuccess (Success 200){boolean} needShow 是否展示 true/false
+     * @apiSuccess (Success 200){boolean} needUniTime 是否需要统一时间
+     * @apiSuccess (Success 200){boolean} useSystemRules 是否使用统一规则
+     * @apiSuccess (Success 200){boolean} useNeedAddress 是否需要配送地址，自提为false
+     */
+    public CompletionStage<Result> listBargainConfigs(Http.Request request, int page) {
+        Member member = businessUtils.getUserIdByAuthToken(request);
+        return CompletableFuture.supplyAsync(() -> {
+            String key = BARGAIN_LIST_JSON_CACHE + page;
+            if (null == member) {
+                Optional<String> jsonCache = cache.getOptional(key);
+                if (jsonCache.isPresent()) {
+                    String result = jsonCache.get();
+                    if (!ValidationUtil.isEmpty(result)) return ok(Json.parse(result));
+                }
+            }
+
+            ExpressionList<BargainConfig> expressionList = BargainConfig.find.query().where()
+                    .ge("status", BargainConfig.STATUS_NOT_START)
+                    .le("status", BargainConfig.STATUS_PROCESSING);
+            List<BargainConfig> list;
+            int pages = 0;
+            if (page > 0) {
+                PagedList<BargainConfig> pagedList = expressionList.orderBy().desc("id")
+                        .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_20)
+                        .setMaxRows(BusinessConstant.PAGE_SIZE_20).findPagedList();
+                pages = pagedList.getTotalPageCount();
+                list = pagedList.getList();
+            } else list = expressionList.orderBy().desc("id").findList();
+            list.parallelStream().forEach((each) -> {
+                if (null != member) {
+                    Bargain bargain = Bargain.find.query().where()
+                            .eq("uid", member.id)
+                            .eq("status", Bargain.STATUS_PROCESSING)
+                            .eq("bargainId", each.id)
+                            .orderBy().desc("id")
+                            .setMaxRows(1)
+                            .findOne();
+                    each.bargain = bargain;
+                }
+                Product product = Product.find.byId(each.productId);
+                if (null != product) {
+                    each.couponProductCoverImgUrl = product.coverImgUrl;
+                    each.couponProductPrice = product.price;
+                }
+            });
+            ObjectNode result = Json.newObject();
+            result.put("pages", pages);
+            result.put(CODE, CODE200);
+            result.set("list", Json.toJson(list));
+            if (null == member) cache.set(key, Json.stringify(result), 10);
+            return ok(result);
+        });
+    }
+
+    /**
+     * @api {GET} /v1/p/bargain/:id/ 05用户砍价详情
+     * @apiName getBargainDetail
+     * @apiGroup ASSIST
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     * @apiSuccess (Success 200) {long} uid 用户ID
+     * @apiSuccess (Success 200) {String} userName 用户名字
+     * @apiSuccess (Success 200) {long} bargainId 砍价ID
+     * @apiSuccess (Success 200) {String} bargainTitle 砍价标题
+     * @apiSuccess (Success 200) {long} beginTime 生效时间
+     * @apiSuccess (Success 200) {long} endTime 失效时间
+     * @apiSuccess (Success 200) {long} inviteAmount 已邀请人数
+     * @apiSuccess (Success 200) {String} updateTime 最后更新时间
+     * @apiSuccess (Success 200) {int} status 状态 -1失败，1进行中,2已成功
+     * @apiSuccess (Error 40001) {int} code 40001 参数错误
+     * @apiSuccess (Error 40002) {int} code 40002 该助力不存在
+     */
+    public CompletionStage<Result> getBargainDetail(Http.Request request, long id) {
+        return CompletableFuture.supplyAsync(() -> {
+            Bargain bargain = Bargain.find.byId(id);
+            if (null == bargain) return okCustomJson(CODE40001, "该砍价不存在");
+            List<BargainMember> bargainMembers = BargainMember.find.query().where()
+                    .eq("userBargainId", bargain.id)
+                    .orderBy().asc("id")
+                    .findList();
+            bargain.bargainMemberList.addAll(bargainMembers);
+            ObjectNode node = (ObjectNode) Json.toJson(bargain);
+            node.put(CODE, CODE200);
+            BargainConfig bargainConfig = BargainConfig.find.byId(bargain.bargainId);
+            if (null != bargainConfig) {
+                if (bargainConfig.productId > 0) {
+                    Product product = Product.find.byId(bargainConfig.productId);
+                    if (null != product) {
+                        bargainConfig.couponProductCoverImgUrl = product.coverImgUrl;
+                        bargainConfig.couponProductPrice = product.price;
+                    }
+                }
+                node.set("assistConfig", Json.toJson(bargainConfig));
+            }
+            return ok(node);
+        });
+    }
+
+
+    /**
+     * @api {GET} /v1/p/bargain_succeed_launchers/:bargainId/?page= 06砍价成功列表
+     * @apiName listBargainSucceedLaunchers
+     * @apiGroup ASSIST
+     * @apiSuccess (Success 200){int} code 200
+     * @apiSuccess (Success 200){int} pages 页码
+     * @apiSuccess (Success 200){JsonArray} list 列表
+     */
+    public CompletionStage<Result> listBargainSucceedLaunchers(Http.Request request, long bargainId, int page) {
+        String jsonCacheKey = BARGAIN_LIST_LAUNCHERS_JSON_CACHE + bargainId + ":" + page;
+        return asyncCacheApi.getOptional(jsonCacheKey).thenApplyAsync((jsonCache) -> {
+            if (jsonCache.isPresent()) {
+                String result = (String) jsonCache.get();
+                if (!ValidationUtil.isEmpty(result)) return ok(Json.parse(result));
+            }
+            PagedList<Bargain> pagedList = Bargain.find.query().where()
+                    .eq("bargainId", bargainId)
+                    .eq("status", Bargain.STATUS_SUCCEED)
+                    .orderBy().desc("id")
+                    .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_20)
+                    .setMaxRows(BusinessConstant.PAGE_SIZE_20)
+                    .findPagedList();
+            List<Bargain> list = pagedList.getList();
             ObjectNode result = Json.newObject();
             result.put("hasNext", pagedList.hasNext());
             result.put(CODE, CODE200);

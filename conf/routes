@@ -108,6 +108,11 @@ GET         /v1/p/member_assist/:id/                               controllers.A
 GET         /v1/p/assist_succeed_launchers/:assistId/              controllers.ActivityController.listAssistSucceedLaunchers(request: Request,assistId:Long,page:Int?=1)
 
 
+GET         /v1/p/bargain_config_list/                             controllers.ActivityController.listBargainConfigs(request: Request,page:Int?=1)
+GET         /v1/p/bargain/:id/                                     controllers.ActivityController.getBargainDetail(request: Request,id:Long)
+GET         /v1/p/bargain_succeed_launchers/:bargainId/            controllers.ActivityController.listBargainSucceedLaunchers(request: Request,bargainId:Long,page:Int?=1)
+
+
 # Map static resources from the /public folder to the /assets URL path
 GET         /*file                                                 controllers.Assets.versioned(path="/public", file: Asset)
 
