@@ -18,8 +18,11 @@ public class ArticleCategory extends Model {
     public static final int SHOW = 1;
     public static final int HIDE = 2;
 
-    public static final int TYPE_NEWS = 1;
-    public static final int TYPE_BUSINESS = 2;
+    public static final int TYPE_NEWS = 10;
+    public static final int TYPE_BUSINESS = 20;
+    public static final int TYPE_DISCOVER = 30;
+    public static final int TYPE_DECORATE_TUTORIAL = 40;
+    public static final int TYPE_DECORATE_SELECT = 50 ;
 
     @Column(name = "id")
     @Id
