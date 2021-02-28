@@ -100,8 +100,10 @@ GET         /v1/p/articles/                                        controllers.A
 GET         /v1/p/articles/:articleId/                             controllers.ArticleController.getArticle(request: Request,articleId:Long)
 POST        /v1/p/articles/fav/                                    controllers.ArticleController.fav(request: Request)
 GET         /v1/p/param_config/                                    controllers.ArticleController.getParamConfig(key:String)
+GET         /v1/p/discovery_list/                                  controllers.ArticleController.listDiscovery(request: Request)
+GET         /v1/p/discovery_list/                                  controllers.ArticleController.listArticlesByCategoryId(categoryId:Long,page:Int?=1)
+GET         /v1/p/recommend_articles/                              controllers.ArticleController.listRecommendArticles
 GET         /v1/p/carousels/                                       controllers.CarouselController.listCarousel(request: Request,bizType:Int?=0,clientType:Int?=0)
-GET         /v1/p/weather/                                         controllers.ArticleController.getWeather(request: Request)
 
 GET         /v1/p/assist_config_list/                              controllers.ActivityController.listAssistConfigs(request: Request,page:Int?=1)
 GET         /v1/p/member_assist/:id/                               controllers.ActivityController.getMemberAssistDetail(request: Request,id:Long)

@@ -554,6 +554,13 @@ public class RedisKeyConstant {
     public static final String PRODUCT_TAB_DETAIL_JSON_CACHE = "PRODUCT_TAB_DETAIL_JSON_CACHE:";
 
     public static final String CAROUSEL_JSON_CACHE = "CAROUSEL_JSON_CACHE:";
+
+    public static final String ARTICLE_LIST_JSON_CACHE = "ARTICLE_LIST_JSON_CACHE:";
+    public static final String ARTICLE_RECOMMEND_JSON_CACHE = "ARTICLE_RECOMMEND_JSON_CACHE:";
+    public static final String ARTICLE_DISCOVERY_CACHE = "ARTICLE_DISCOVERY_CACHE";
+    public static final String ARTICLE_HOME_PAGE = "ARTICLE_HOME_PAGE";
+    public static final String ARTICLE_JSON_CACHE = "ARTICLE_JSON_CACHE:";
+    public static final String COMMENT_JSON_CACHE = "COMMENT_JSON_CACHE:";
     public static final String ARTICLE_CATEGORY_KEY_PREFIX = "ARTICLE_CATEGORY_KEY_PREFIX:";
     public static final String ARTICLE_CATEGORY_KEY_BY_ID_PREFIX = "ARTICLE_CATEGORY_KEY_BY_ID_PREFIX:";
 

@@ -1,6 +1,7 @@
 package controllers;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import constants.BusinessConstant;
 import io.ebean.Ebean;
@@ -27,25 +28,114 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
-import static constants.RedisKeyConstant.WEATHER_JSON_CACHE;
+import static constants.RedisKeyConstant.*;
 
 /**
  * 用户控制类
  */
 public class ArticleController extends BaseController {
 
-    public static final String ARTICLE_LIST_JSON_CACHE = "ARTICLE_LIST_JSON_CACHE:";
-    public static final String ARTICLE_HOME_PAGE = "ARTICLE_HOME_PAGE";
-    public static final String ARTICLE_JSON_CACHE = "ARTICLE_JSON_CACHE:";
-    public static final String COMMENT_JSON_CACHE = "COMMENT_JSON_CACHE:";
-
     Logger.ALogger logger = Logger.of(ArticleController.class);
 
+
     /**
-     * @api {GET} /v1/n/articles/?page=&cateName= 01文章列表
+     * @api {GET} /v1/p/discovery_list/ 01发现列表
+     * @apiName listDiscovery
+     * @apiGroup Article
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     * @apiSuccess (Success 200) {JsonObject} list 列表
+     * @apiSuccess (Success 200){long} articleId 文章id
+     * @apiSuccess (Success 200){String} title 文章标题
+     * @apiSuccess (Success 200){String} author 文章作者
+     * @apiSuccess (Success 200){String} source 文章来源
+     * @apiSuccess (Success 200){String} publishTime 文章发布时间
+     * @apiSuccess (Success 200){String} categoryName 所属分类
+     * @apiSuccess (Success 200){String} publishStatusName 发布状态
+     */
+    public CompletionStage<Result> listDiscovery(Http.Request request) {
+        return CompletableFuture.supplyAsync(() -> {
+            //缓存2分钟
+            String key = ARTICLE_DISCOVERY_CACHE;
+            Optional<String> jsonCache = cache.getOptional(key);
+            if (jsonCache.isPresent()) {
+                String result = jsonCache.get();
+                if (!ValidationUtil.isEmpty(result)) return ok(result);
+            }
+
+            List<ArticleCategory> categoryList = ArticleCategory.find.query().where()
+                    .ge("categoryType", ArticleCategory.TYPE_DISCOVER)
+                    .findList();
+            ArrayNode nodes = Json.newArray();
+            categoryList.forEach((each) -> {
+                ObjectNode node = Json.newObject();
+                node.set("category", Json.toJson(each));
+                List<Article> list = Article.find.query()
+                        .select("title,digest,headPic,views,favs,comments,shares,createdTime")
+                        .where()
+                        .eq("categoryId", each.getId())
+                        .eq("status", Article.ARTICLE_STATUS_NORMAL)
+                        .orderBy().desc("id")
+                        .setMaxRows(5)
+                        .findList();
+                node.set("articles", Json.toJson(list));
+                nodes.add(node);
+            });
+
+            ObjectNode node = Json.newObject();
+            node.put(CODE, CODE200);
+            node.set("list", nodes);
+            cache.set(key, Json.stringify(node), 2 * 60);
+            return ok(node);
+        });
+    }
+
+
+    /**
+     * @api {GET} /v1/p/articles_by_category_id/?page= 02根据分类id获取文章列表
      * @apiName listArticles
      * @apiGroup Article
-     * @apiParam cateName 给前端用户用的有：快讯、推荐、日报
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     * @apiSuccess (Success 200) {JsonObject} list 列表
+     * @apiSuccess (Success 200){long} articleId 文章id
+     * @apiSuccess (Success 200){String} title 文章标题
+     * @apiSuccess (Success 200){String} author 文章作者
+     * @apiSuccess (Success 200){String} source 文章来源
+     * @apiSuccess (Success 200){String} publishTime 文章发布时间
+     * @apiSuccess (Success 200){String} categoryName 所属分类
+     * @apiSuccess (Success 200){String} publishStatusName 发布状态
+     */
+    public CompletionStage<Result> listArticlesByCategoryId(long categoryId, int page) {
+        return CompletableFuture.supplyAsync(() -> {
+            //缓存2分钟
+            String key = ARTICLE_LIST_JSON_CACHE + categoryId;
+            Optional<String> jsonCache = cache.getOptional(key);
+            if (jsonCache.isPresent()) {
+                String result = jsonCache.get();
+                if (!ValidationUtil.isEmpty(result)) return ok(Json.parse(result));
+            }
+            PagedList<Article> pagedList = Article.find.query()
+                    .select("title,digest,headPic,views,favs,comments,shares,createdTime")
+                    .where()
+                    .eq("categoryId", categoryId)
+                    .eq("status", Article.ARTICLE_STATUS_NORMAL)
+                    .orderBy().desc("id")
+                    .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                    .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                    .findPagedList();
+            List<Article> list = pagedList.getList();
+            ObjectNode node = Json.newObject();
+            node.put(CODE, CODE200);
+            node.set("list", Json.toJson(list));
+            cache.set(key, Json.stringify(node), 2 * 60);
+            return ok(node);
+        });
+    }
+
+
+    /**
+     * @api {GET} /v1/p/articles/?page= 03根据分类名字获取文章列表
+     * @apiName listArticles
+     * @apiGroup Article
      * @apiSuccess (Success 200) {int} code 200 请求成功
      * @apiSuccess (Success 200) {JsonObject} list 列表
      * @apiSuccess (Success 200){long} articleId 文章id
@@ -133,7 +223,7 @@ public class ArticleController extends BaseController {
 
 
     /**
-     * @api {GET} /v1/n/articles/:articleId/ 02文章详情
+     * @api {GET} /v1/p/articles/:articleId/ 04文章详情
      * @apiName getArticle
      * @apiGroup Article
      * @apiSuccess (Success 200) {int} code 200 请求成功
@@ -213,7 +303,45 @@ public class ArticleController extends BaseController {
     }
 
     /**
-     * @api {post} /v1/n/articles/fav/ 04收藏
+     * @api {GET} /v1/p/recommend_articles/ 05精选文章列表
+     * @apiName listRecommendArticles
+     * @apiGroup Article
+     * @apiSuccess (Success 200) {int} code 200 请求成功
+     * @apiSuccess (Success 200) {JsonObject} list 列表
+     * @apiSuccess (Success 200){long} articleId 文章id
+     * @apiSuccess (Success 200){String} title 文章标题
+     * @apiSuccess (Success 200){String} author 文章作者
+     * @apiSuccess (Success 200){String} source 文章来源
+     * @apiSuccess (Success 200){String} publishTime 文章发布时间
+     * @apiSuccess (Success 200){String} categoryName 所属分类
+     * @apiSuccess (Success 200){String} publishStatusName 发布状态
+     */
+    public CompletionStage<Result> listRecommendArticles() {
+        return CompletableFuture.supplyAsync(() -> {
+            //缓存2分钟
+            String key = ARTICLE_RECOMMEND_JSON_CACHE;
+            Optional<String> jsonCache = cache.getOptional(key);
+            if (jsonCache.isPresent()) {
+                String result = jsonCache.get();
+                if (!ValidationUtil.isEmpty(result)) return ok(Json.parse(result));
+            }
+            List<Article> list = Article.find.query()
+                    .select("title,digest,headPic,views,favs,comments,shares,createdTime")
+                    .where()
+                    .eq("isRecommend", true)
+                    .eq("status", Article.ARTICLE_STATUS_NORMAL)
+                    .orderBy().desc("id")
+                    .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                    .findList();
+            ObjectNode node = Json.newObject();
+            node.put(CODE, CODE200);
+            node.set("list", Json.toJson(list));
+            cache.set(key, Json.stringify(node), 2 * 60);
+            return ok(node);
+        });
+    }
+    /**
+     * @api {post} /v1/p/articles/fav/ 06收藏
      * @apiName fav
      * @apiGroup Article
      * @apiParam {boolean} enable true收藏 false取消收藏
@@ -280,7 +408,7 @@ public class ArticleController extends BaseController {
     }
 
     /**
-     * @api {GET} /v1/n/param_config/?key= 08获取参数配置
+     * @api {GET} /v1/p/param_config/?key= 07获取参数配置
      * @apiName getParamConfig
      * @apiGroup Article
      * @apiSuccess (Success 200) {int} code 200 请求成功
@@ -291,13 +419,13 @@ public class ArticleController extends BaseController {
         return CompletableFuture.supplyAsync(() -> {
             if (ValidationUtil.isEmpty(key)) return okCustomJson(CODE40001, "请输入KEY值");
             String jsonKey = cacheUtils.getParamConfigCacheKey() + key;
-            Optional<ParamConfig> jsonCache = cache.getOptional(jsonKey);
+            Optional<String> jsonCache = cache.getOptional(jsonKey);
             if (jsonCache.isPresent()) {
-                ParamConfig paramConfig = jsonCache.get();
-                if (null != paramConfig) {
+                String value = jsonCache.get();
+                if (!ValidationUtil.isEmpty(value)) {
                     ObjectNode node = Json.newObject();
                     node.put(CODE, CODE200);
-                    node.put("value", paramConfig.value);
+                    node.put("value", value);
                     return ok(node);
                 }
             }
@@ -307,25 +435,12 @@ public class ArticleController extends BaseController {
             ObjectNode resultNode = Json.newObject();
             resultNode.put(CODE, CODE200);
             resultNode.put("value", paramConfig.value);
-            cache.set(jsonKey, paramConfig, 30 * 24 * 60 * 60);
+            cache.set(jsonKey, paramConfig.value, 30 * 24 * 60 * 60);
             return ok(resultNode);
         });
     }
 
-    public CompletionStage<Result> getWeather(Http.Request request) {
-        long currentTime = dateUtils.getCurrentTimeBySecond();
-        return asyncCacheApi.getOptional(WEATHER_JSON_CACHE).thenApplyAsync((weatherOption) -> {
-            ObjectNode weatherNode = Json.newObject();
-            if (weatherOption.isPresent()) {
-                String weather = (String) weatherOption.get();
-                if (!ValidationUtil.isEmpty(weather)) {
-                    weatherNode = (ObjectNode) Json.parse(weather);
-                }
-            }
-            weatherNode.put("currentTime", currentTime);
-            weatherNode.put(CODE, CODE200);
-            return ok(weatherNode);
-        });
-    }
+
+
 
 }

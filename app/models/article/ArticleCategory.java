@@ -40,7 +40,7 @@ public class ArticleCategory extends Model {
     private int status;//1显示 2隐藏
 
     @Column(name = "cate_type")
-    private int categoryType;//1为新闻类，2为业务类
+    private int categoryType;
 
     @Column(name = "note")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
