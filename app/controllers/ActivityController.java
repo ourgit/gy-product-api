@@ -310,7 +310,7 @@ public class ActivityController extends BaseController {
                         bargainConfig.couponProductPrice = product.price;
                     }
                 }
-                node.set("assistConfig", Json.toJson(bargainConfig));
+                node.set("bargainConfig", Json.toJson(bargainConfig));
             }
             return ok(node);
         });
