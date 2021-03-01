@@ -14,16 +14,17 @@ import javax.persistence.*;
 @Table(name = "v1_sku_avatar")
 public class ProductSkuAvatar extends Model {
 
+
     @Column(name = "id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long id;
 
-    @Column(name = "sku_id")
-    public long skuId;
-
     @Column(name = "product_id")
     public long productId;
+
+    @Column(name = "sku_id")
+    public long skuId;
 
     @Column(name = "uid")
     public long uid;
@@ -38,6 +39,9 @@ public class ProductSkuAvatar extends Model {
     @Column(name = "user_name")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String userName;
+
+    @Column(name = "activity_type")
+    public long activityType;
 
     @Column(name = "create_time")
     public long createTime;
@@ -108,15 +112,25 @@ public class ProductSkuAvatar extends Model {
         this.productId = productId;
     }
 
+    public long getActivityType() {
+        return activityType;
+    }
+
+    public void setActivityType(long activityType) {
+        this.activityType = activityType;
+    }
+
     @Override
     public String toString() {
         return "ProductSkuAvatar{" +
                 "id=" + id +
+                ", productId=" + productId +
                 ", skuId=" + skuId +
                 ", uid=" + uid +
                 ", amount=" + amount +
                 ", avatar='" + avatar + '\'' +
                 ", userName='" + userName + '\'' +
+                ", activityType=" + activityType +
                 ", createTime=" + createTime +
                 '}';
     }
