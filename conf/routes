@@ -63,7 +63,7 @@ GET         /v1/p/classify_list/                                   controllers.P
 GET         /v1/p/mail_fee_list/                                   controllers.ProductController.listMailFee()
 POST        /v1/p/clear_search_keyword/                            controllers.ProductController.clearSearchKeyword(request:Request)
 #GET         /v1/p/shop_products/:shopId/                           controllers.ProductController.listShopProducts(request:Request,shopId:Long,page:Int?=1)
-GET         /v1/p/shop_list/                                       controllers.ProductController.listShops(request:Request,page:Int?=1,filter:String?="")
+GET         /v1/p/shop_list/                                       controllers.ProductController.listShops(request:Request,page:Int?=1,filter:String?="",tag:String?="")
 POST        /v1/p/shop_fav/                                        controllers.ProductController.favShop(request:Request)
 GET         /v1/p/search_shop_keywords/                            controllers.ProductController.searchShopKeywords(request:Request)
 POST        /v1/p/clear_search_shop_keywords/                      controllers.ProductController.clearShopKeywords(request:Request)

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.ebean.Finder;
 import io.ebean.Model;
 import models.product.Product;
-import models.promotion.CouponConfig;
 import myannotation.EscapeHtmlSerializer;
 import play.data.validation.Constraints;
 
@@ -126,6 +125,20 @@ public class Shop extends Model {
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String avatar;
 
+    @Column(name = "rect_logo")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    public String rectLogo;
+
+    @Column(name = "product_counts")
+    public long productCounts;
+
+    @Column(name = "views")
+    public long views;
+
+    @Column(name = "tags")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    public String tags;
+
     @Column(name = "images")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String images;
@@ -175,8 +188,6 @@ public class Shop extends Model {
     @Transient
     public List<Product> homepageShops = new ArrayList<>();
 
-    @Transient
-    public CouponConfig couponConfig;
 
     public static Finder<Long, Shop> find = new Finder<>(Shop.class);
 
@@ -467,6 +478,38 @@ public class Shop extends Model {
 
     public void setShopLevel(int shopLevel) {
         this.shopLevel = shopLevel;
+    }
+
+    public String getRectLogo() {
+        return rectLogo;
+    }
+
+    public void setRectLogo(String rectLogo) {
+        this.rectLogo = rectLogo;
+    }
+
+    public long getProductCounts() {
+        return productCounts;
+    }
+
+    public void setProductCounts(long productCounts) {
+        this.productCounts = productCounts;
+    }
+
+    public long getViews() {
+        return views;
+    }
+
+    public void setViews(long views) {
+        this.views = views;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     @Override

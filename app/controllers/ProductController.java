@@ -21,6 +21,7 @@ import models.promotion.CouponConfig;
 import models.region.Region;
 import models.shop.Shop;
 import models.shop.ShopProductCategory;
+import models.shop.ShopTag;
 import models.system.ParamConfig;
 import models.system.SystemCarousel;
 import models.user.Member;
@@ -3056,29 +3057,35 @@ public class ProductController extends BaseController {
      * @apiSuccess (Success 200) {int} pages 页数
      * @apiSuccess (Success 200) {JsonArray} list 列表
      */
-    public CompletionStage<Result> listShops(Http.Request request, int page, String filter) {
-        if (ValidationUtil.isEmpty(filter)) {
+    public CompletionStage<Result> listShops(Http.Request request, int page, String filter, String tag) {
+        if (ValidationUtil.isEmpty(filter) && ValidationUtil.isEmpty(tag)) {
             String key = cacheUtils.getShopListJsonCache(page);
             return asyncCacheApi.getOptional(key).thenApplyAsync((jsonCache) -> {
                 if (jsonCache.isPresent()) {
                     String result = (String) jsonCache.get();
                     if (!ValidationUtil.isEmpty(result)) return ok(result);
                 }
-                ObjectNode result = getShopNodes(page, filter, request);
+                ObjectNode result = getShopNodes(page, filter, tag, request);
                 cache.set(key, Json.stringify(result), 2 * 60);
                 return ok(result);
             });
         } else {
             return CompletableFuture.supplyAsync(() -> {
-                ObjectNode result = getShopNodes(page, filter, request);
+                ObjectNode result = getShopNodes(page, filter, tag, request);
                 return ok(result);
             });
         }
     }
 
 
-    private ObjectNode getShopNodes(int page, String filter, Http.Request request) {
+    private ObjectNode getShopNodes(int page, String filter, String tag, Http.Request request) {
         ExpressionList<Shop> expressionList = Shop.find.query().where().eq("status", Shop.STATUS_NORMAL);
+        if (!ValidationUtil.isEmpty(tag)) {
+            List<Long> shopIdList = ShopTag.find.query().select("shopId").where().eq("tag", tag).findSingleAttributeList();
+            if (shopIdList.size() > 0) {
+                expressionList.in("id", shopIdList);
+            } else expressionList.eq("id", 0);
+        }
         String filterTrim = filter.trim().replaceAll("\\s+", " ");
         String filterTrimWithoutSpace = filterTrim.replaceAll(" ", "");
         if (!ValidationUtil.isEmpty(filterTrimWithoutSpace)) {
