@@ -173,6 +173,12 @@ public class Shop extends Model {
     @Column(name = "dada_user_no")
     public String dadaUserNo;
 
+    @Column(name = "bulletin")
+    public String bulletin;
+
+    @Column(name = "env_images")
+    public String envImages;
+
     @Transient
     public List<Staff> staffList = new ArrayList<>();
 
@@ -510,6 +516,22 @@ public class Shop extends Model {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public String getBulletin() {
+        return bulletin;
+    }
+
+    public void setBulletin(String bulletin) {
+        this.bulletin = bulletin;
+    }
+
+    public String getEnvImages() {
+        return envImages;
+    }
+
+    public void setEnvImages(String envImages) {
+        this.envImages = envImages;
     }
 
     @Override
