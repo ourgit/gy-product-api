@@ -3107,8 +3107,9 @@ public class ProductController extends BaseController {
             each.setBranches("");
             List<Product> products = Product.find.query().where()
                     .eq("shopId", each.id)
-                    .eq("placeShopTop", true)
+                    .orderBy().desc("placeShopTop")
                     .orderBy().desc("sort")
+                    .orderBy().desc("id")
                     .setMaxRows(3)
                     .findList();
             each.homepageShops.addAll(products);
