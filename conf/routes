@@ -52,7 +52,7 @@ POST        /v1/p/fav/                                             controllers.P
 POST        /v1/p/batch_del_fav/                                   controllers.ProductController.batchDeleteFav(request:Request)
 POST        /v1/p/shopping_cart_item/                              controllers.ProductController.enableCartItem(request:Request)
 GET         /v1/p/products_by_coupon/                              controllers.ProductController.listProductsByCouponId(configId:Long)
-GET         /v1/p/coupon_list/                                     controllers.ProductController.couponList(request:Request,page:Int?=1)
+GET         /v1/p/coupon_list/                                     controllers.ProductController.couponList(request:Request,page:Int?=1,shopId:Long?=0)
 GET         /v1/p/browse_logs/                                     controllers.ProductController.listBrowseLogs(request:Request,page:Int?=1)
 
 GET         /v1/p/out_stock_reg_list/                              controllers.ProductController.outStockRegList(request:Request,page:Int?=1)

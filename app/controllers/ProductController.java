@@ -2177,9 +2177,11 @@ public class ProductController extends BaseController {
      * @apiSuccess (Success 200){int} currentPrice 现价，以分为单位
      * @apiSuccess (Success 200){long} updateTime 时间
      */
-    public CompletionStage<Result> couponList(Http.Request request, int page) {
+    public CompletionStage<Result> couponList(Http.Request request, int page, long shopId) {
         return businessUtils.getUserIdByAuthToken2(request).thenApplyAsync((memberInCache) -> {
-            PagedList<CouponConfig> pagedList = CouponConfig.find.query().where()
+            ExpressionList<CouponConfig> expressionList = CouponConfig.find.query().where();
+            if (shopId > 0) expressionList.icontains("shopIds", "/" + shopId + "/");
+            PagedList<CouponConfig> pagedList = expressionList
                     .eq("type", TYPE_ALL_CAN_USE)
                     .eq("status", STATUS_ENABLE)
                     .eq("needShow", true)
@@ -3780,7 +3782,6 @@ public class ProductController extends BaseController {
             long categoryId = requestNode.findPath("categoryId").asLong();
             int page = requestNode.findPath("page").asInt();
             //第一页从缓存读取
-            if (categoryId < 1) return okCustomJson(CODE40001, "该分类不存在");
             String jsonCacheKey = cacheUtils.getShopProductsByCategoryFromCache(categoryId, page);
             Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
             if (cacheOptional.isPresent()) {
@@ -3795,8 +3796,8 @@ public class ProductController extends BaseController {
             long currentTime = Timestamp.valueOf(today).getTime() / 1000;
             int hour = today.getHour();
             ExpressionList<Product> expressionList = businessUtils.autoGetProductsExpressionList();
+            if (categoryId > 0) expressionList.icontains("shopCategoryId", categoryId + "");
             PagedList<Product> pagedList = expressionList
-                    .icontains("shopCategoryId", categoryId + "")
                     .orderBy().desc("sort")
                     .orderBy().desc("id")
                     .setFirstRow((page - 1) * 10)
@@ -4644,5 +4645,6 @@ public class ProductController extends BaseController {
             return ok(result);
         });
     }
+
 
 }
