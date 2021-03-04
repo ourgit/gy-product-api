@@ -23,6 +23,15 @@ public class BrowseLog extends Model {
     @Column(name = "uid")
     private long uid;
 
+    @Column(name = "user_name")
+    private String userName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "shop_id")
+    private long shopId;
+
     @Column(name = "create_time")
     private long createTime;
 
@@ -63,14 +72,27 @@ public class BrowseLog extends Model {
         this.createTime = createTime;
     }
 
-    @Override
-    public String toString() {
-        return "BrowseLog{" +
-                "id=" + id +
-                ", productId=" + productId +
-                ", uid=" + uid +
-                ", createTime=" + createTime +
-                ", product=" + product +
-                '}';
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public long getShopId() {
+        return shopId;
+    }
+
+    public void setShopId(long shopId) {
+        this.shopId = shopId;
     }
 }

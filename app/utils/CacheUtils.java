@@ -245,8 +245,8 @@ public class CacheUtils {
         return GET_PRODUCT_BY_CATEGORY_FROM_JSON_CACHE + categoryId + ":" + page;
     }
 
-    public String getShopProductsByCategoryFromCache(long categoryId, int page) {
-        return GET_SHOP_PRODUCT_BY_CATEGORY_FROM_JSON_CACHE + categoryId + ":" + page;
+    public String getShopProductsByCategoryFromCache(long categoryId, long shopId, int page) {
+        return GET_SHOP_PRODUCT_BY_CATEGORY_FROM_JSON_CACHE + categoryId + ":" + shopId + ":" + page;
     }
 
     public String getSpecialTopicJsonCache() {
@@ -280,8 +280,9 @@ public class CacheUtils {
     public String getShopKeywordsJsonCache() {
         return SHOP_SEARCH_KEYWORDS_JSON_CACHE;
     }
+
     public String getSearchKeywordsJsonCache() {
-        return  SEARCH_KEYWORDS_JSON_CACHE;
+        return SEARCH_KEYWORDS_JSON_CACHE;
     }
 
     public String getProductTabJsonCache() {

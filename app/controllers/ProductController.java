@@ -666,6 +666,10 @@ public class ProductController extends BaseController {
                     log = new BrowseLog();
                     log.setProductId(productId);
                     log.setUid(memberInCache.id);
+                    log.setUserName(memberInCache.nickName);
+                    log.setPhoneNumber(memberInCache.phoneNumber);
+                    Product product = Product.find.byId(productId);
+                    if (null != product) log.setShopId(product.shopId);
                     log.setCreateTime(dateUtils.getCurrentTimeBySecond());
                     log.save();
                 }
@@ -2404,7 +2408,7 @@ public class ProductController extends BaseController {
 
 
     /**
-     * @api {GET} /v1/p/browse_logs/ 34浏览记录
+     * @api {GET} /v1/p/browse_logs/ 34浏览记录(我的足迹)
      * @apiName listBrowseLogs
      * @apiGroup Product
      * @apiSuccess (Success 200) {int} code 200 请求成功
@@ -3105,20 +3109,24 @@ public class ProductController extends BaseController {
         list.parallelStream().forEach((each) -> {
             each.setFilter("");
             each.setBranches("");
-            List<Product> products = Product.find.query().where()
-                    .eq("shopId", each.id)
-                    .orderBy().desc("placeShopTop")
-                    .orderBy().desc("sort")
-                    .orderBy().desc("id")
-                    .setMaxRows(3)
-                    .findList();
-            each.homepageShops.addAll(products);
+            retrieveShopTopProducts(each);
         });
         ObjectNode result = Json.newObject();
         result.put(CODE, CODE200);
         result.put("hasNext", pagedList.hasNext());
         result.set("list", Json.toJson(list));
         return result;
+    }
+
+    private void retrieveShopTopProducts(Shop each) {
+        List<Product> products = Product.find.query().where()
+                .eq("shopId", each.id)
+                .orderBy().desc("placeShopTop")
+                .orderBy().desc("sort")
+                .orderBy().desc("id")
+                .setMaxRows(3)
+                .findList();
+        each.homepageShops.addAll(products);
     }
 
 
@@ -3781,9 +3789,10 @@ public class ProductController extends BaseController {
         return CompletableFuture.supplyAsync(() -> {
             JsonNode requestNode = request.body().asJson();
             long categoryId = requestNode.findPath("categoryId").asLong();
+            long shopId = requestNode.findPath("shopId").asLong();
             int page = requestNode.findPath("page").asInt();
             //第一页从缓存读取
-            String jsonCacheKey = cacheUtils.getShopProductsByCategoryFromCache(categoryId, page);
+            String jsonCacheKey = cacheUtils.getShopProductsByCategoryFromCache(categoryId, shopId, page);
             Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
             if (cacheOptional.isPresent()) {
                 String node = cacheOptional.get();
@@ -3797,6 +3806,7 @@ public class ProductController extends BaseController {
             long currentTime = Timestamp.valueOf(today).getTime() / 1000;
             int hour = today.getHour();
             ExpressionList<Product> expressionList = businessUtils.autoGetProductsExpressionList();
+            expressionList.eq("shopId", shopId);
             if (categoryId > 0) expressionList.icontains("shopCategoryId", categoryId + "");
             PagedList<Product> pagedList = expressionList
                     .orderBy().desc("sort")
@@ -4000,6 +4010,7 @@ public class ProductController extends BaseController {
             List<ShopFav> shopFavList = pagedList.getList();
             shopFavList.parallelStream().forEach((each) -> {
                 Shop shop = Shop.find.byId(each.getShopId());
+                if (null != shop) retrieveShopTopProducts(shop);
                 each.shop = shop;
             });
             node.put("hasNext", pagedList.hasNext());
