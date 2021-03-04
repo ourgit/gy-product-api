@@ -22,6 +22,7 @@ import models.region.Region;
 import models.shop.Shop;
 import models.shop.ShopProductCategory;
 import models.shop.ShopTag;
+import models.shop.Showcase;
 import models.system.ParamConfig;
 import models.system.SystemCarousel;
 import models.user.Member;
@@ -4658,5 +4659,56 @@ public class ProductController extends BaseController {
         });
     }
 
+    /**
+     * @api {GET} /v1/p/show_case_list/?shopId=&page=&title= 75案例图片列表
+     * @apiName listShowCase
+     * @apiGroup Product
+     * @apiSuccess (Success 200){int} code 200
+     * @apiSuccess (Success 200){Array} list
+     * @apiSuccess (Success 200){String} title 标题
+     * @apiSuccess (Success 200){String} tags 标签
+     * @apiSuccess (Success 200){String} images 图片
+     * @apiSuccess (Success 200){String} shopName 店铺名字
+     * @apiSuccess (Success 200){long} shopId 店铺ID
+     * @apiSuccess (Success 200){long} imageCount 图片数
+     * @apiSuccess (Error 40001){int} code 40001 参数错误
+     */
+    public CompletionStage<Result> listShowCase(Http.Request request, long shopId, int page, String title) {
+        return CompletableFuture.supplyAsync(() -> {
+            ExpressionList<Showcase> expressionList = Showcase.find.query().where().eq("shopId", shopId);
+            if (!ValidationUtil.isEmpty(title)) expressionList.icontains("title", title);
+            PagedList<Showcase> pagedList = expressionList.orderBy().desc("id")
+                    .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                    .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                    .findPagedList();
+            ObjectNode result = Json.newObject();
+            result.set("list", Json.toJson(pagedList.getList()));
+            result.put("pages", pagedList.getTotalPageCount());
+            result.put(CODE, CODE200);
+            return ok(result);
+        });
+    }
+
+    /**
+     * @api {GET} /v1/p/show_case_list/:id/ 76案例图片详情
+     * @apiName getShowCase
+     * @apiGroup Product
+     * @apiSuccess (Success 200){int} code 200
+     * @apiSuccess (Success 200){String} title 标题
+     * @apiSuccess (Success 200){String} tags 标签
+     * @apiSuccess (Success 200){String} images 图片
+     * @apiSuccess (Success 200){String} shopName 店铺名字
+     * @apiSuccess (Success 200){long} shopId 店铺ID
+     * @apiSuccess (Success 200){long} imageCount 图片数
+     * @apiSuccess (Error 40001){int} code 40001 参数错误
+     */
+    public CompletionStage<Result> getShowCase(Http.Request request, long id) {
+        return CompletableFuture.supplyAsync(() -> {
+            Showcase showcase = Showcase.find.byId(id);
+            ObjectNode result = (ObjectNode) Json.toJson(showcase);
+            result.put(CODE, CODE200);
+            return ok(result);
+        });
+    }
 
 }
