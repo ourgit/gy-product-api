@@ -670,9 +670,9 @@ public class ProductController extends BaseController {
                     log.setUserName(memberInCache.nickName);
                     log.setPhoneNumber(memberInCache.phoneNumber);
                     Product product = Product.find.byId(productId);
-                    if (null != product){
+                    if (null != product) {
                         log.setShopId(product.shopId);
-                        updateShowView(product.shopId,PRODUCT_SHOP_VIEW);
+                        updateShowView(product.shopId, PRODUCT_SHOP_VIEW);
                     }
                     log.setCreateTime(dateUtils.getCurrentTimeBySecond());
                     log.save();
@@ -2704,12 +2704,12 @@ public class ProductController extends BaseController {
                 }
             }
             result.put("isFavShop", isFavShop);
-            updateShowView(id,SHOP_VIEW);
+            updateShowView(id, SHOP_VIEW);
             return ok(result);
         });
     }
 
-    private void updateShowView(long shopId,int view) {
+    private void updateShowView(long shopId, int view) {
         CompletableFuture.runAsync(() -> {
             String sql = "UPDATE " +
                     "    `v1_shop` AS `dest`, " +
@@ -4663,9 +4663,9 @@ public class ProductController extends BaseController {
      * @apiSuccess (Success 200) {JsonArray} searchLogList 历史搜索（自己的）
      * @apiSuccess (Success 200) {String} keyword_ 关键字
      */
-    public CompletionStage<Result> listHomepageSearchKeywords(Http.Request request) {
+    public CompletionStage<Result> listHomepageSearchKeywords(Http.Request request, int from) {
         return CompletableFuture.supplyAsync(() -> {
-            String jsonCacheKey = cacheUtils.getSearchKeywordsJsonCache();
+            String jsonCacheKey = cacheUtils.getSearchKeywordsJsonCache(from);
             Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
             if (cacheOptional.isPresent()) {
                 String node = cacheOptional.get();
@@ -4673,8 +4673,11 @@ public class ProductController extends BaseController {
                     return ok(node);
                 }
             }
-            List<SearchKeyword> list = SearchKeyword.find.query().orderBy()
-                    .desc("sort").setMaxRows(30).findList();
+            List<SearchKeyword> list = SearchKeyword.find.query().where()
+                    .eq("from", from)
+                    .eq("enable", true)
+                    .orderBy().desc("sort")
+                    .setMaxRows(30).findList();
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             result.set("list", Json.toJson(list));

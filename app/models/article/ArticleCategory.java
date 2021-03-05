@@ -54,6 +54,10 @@ public class ArticleCategory extends Model {
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     private String icon;
 
+    @Column(name = "display_mode")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    private String displayMode;
+
     @Column(name = "update_time")
     private long updateTime;
 
@@ -140,6 +144,14 @@ public class ArticleCategory extends Model {
 
     public void setCreatedTime(long createdTime) {
         this.createdTime = createdTime;
+    }
+
+    public String getDisplayMode() {
+        return displayMode;
+    }
+
+    public void setDisplayMode(String displayMode) {
+        this.displayMode = displayMode;
     }
 
     @Override

@@ -3,10 +3,13 @@ package models.article;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.ebean.Finder;
 import io.ebean.Model;
+import models.product.Product;
 import myannotation.EscapeHtmlSerializer;
 import myannotation.EscapeHtmlSerializerForKeepSomeHtml;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 文章表
@@ -78,6 +81,10 @@ public class Article extends Model {
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     private String tags;
 
+    @Column(name = "product_id_list")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    private String productIdList;
+
     @Column(name = "views")
     private long views;
 
@@ -104,6 +111,9 @@ public class Article extends Model {
 
     @Transient
     private String publishDay;//文章发布日期，只显示几号
+
+    @Transient
+    public List<Product> productList = new ArrayList<>();
 
     public static Finder<Long, Article> find = new Finder<>(Article.class);
 
@@ -281,6 +291,14 @@ public class Article extends Model {
 
     public void setTags(String tags) {
         this.tags = tags;
+    }
+
+    public String getProductIdList() {
+        return productIdList;
+    }
+
+    public void setProductIdList(String productIdList) {
+        this.productIdList = productIdList;
     }
 
     @Override

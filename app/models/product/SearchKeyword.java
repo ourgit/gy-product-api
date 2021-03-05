@@ -17,6 +17,12 @@ public class SearchKeyword extends Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long id;
 
+    @Column(name = "from")
+    public int from;
+
+    @Column(name = "enable")
+    public boolean enable;
+
     @Column(name = "keyword")
     public String keyword;
 
@@ -47,5 +53,21 @@ public class SearchKeyword extends Model {
 
     public void setSort(long sort) {
         this.sort = sort;
+    }
+
+    public int getFrom() {
+        return from;
+    }
+
+    public void setFrom(int from) {
+        this.from = from;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
     }
 }

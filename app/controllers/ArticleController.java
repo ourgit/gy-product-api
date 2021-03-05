@@ -10,6 +10,7 @@ import io.ebean.SqlUpdate;
 import models.article.Article;
 import models.article.ArticleCategory;
 import models.article.ArticleFav;
+import models.product.Product;
 import models.system.ParamConfig;
 import models.user.Member;
 import play.Logger;
@@ -278,6 +279,18 @@ public class ArticleController extends BaseController {
             if (article.getCategoryId() > 0) {
                 article.setCategoryName(getArticleCategoryName(article.getCategoryId()));
             }
+            if (!ValidationUtil.isEmpty(article.getProductIdList())) {
+                ArrayNode idList = (ArrayNode) Json.parse(article.getProductIdList());
+                if (idList.size() > 0) {
+                    idList.forEach((each) -> {
+                        long productId = each.asLong();
+                        Product product = Product.find.byId(productId);
+                        if (null != product) {
+                            article.productList.add(product);
+                        }
+                    });
+                }
+            }
             ObjectNode node = (ObjectNode) Json.toJson(article);
             node.put(CODE, CODE200);
             //缓存24小时
@@ -340,6 +353,7 @@ public class ArticleController extends BaseController {
             return ok(node);
         });
     }
+
     /**
      * @api {post} /v1/p/articles/fav/ 06收藏
      * @apiName fav
@@ -439,8 +453,6 @@ public class ArticleController extends BaseController {
             return ok(resultNode);
         });
     }
-
-
 
 
 }
