@@ -55,12 +55,12 @@ public class ArticleController extends BaseController {
     public CompletionStage<Result> listDiscovery(Http.Request request) {
         return CompletableFuture.supplyAsync(() -> {
             //缓存2分钟
-            String key = ARTICLE_DISCOVERY_CACHE;
-            Optional<String> jsonCache = cache.getOptional(key);
-            if (jsonCache.isPresent()) {
-                String result = jsonCache.get();
-                if (!ValidationUtil.isEmpty(result)) return ok(result);
-            }
+//            String key = ARTICLE_DISCOVERY_CACHE;
+//            Optional<String> jsonCache = cache.getOptional(key);
+//            if (jsonCache.isPresent()) {
+//                String result = jsonCache.get();
+//                if (!ValidationUtil.isEmpty(result)) return ok(result);
+//            }
 
             List<ArticleCategory> categoryList = ArticleCategory.find.query().where()
                     .ge("categoryType", ArticleCategory.TYPE_DISCOVER)
@@ -84,7 +84,7 @@ public class ArticleController extends BaseController {
             ObjectNode node = Json.newObject();
             node.put(CODE, CODE200);
             node.set("list", nodes);
-            cache.set(key, Json.stringify(node), 2 * 60);
+//            cache.set(key, Json.stringify(node), 2 * 60);
             return ok(node);
         });
     }
