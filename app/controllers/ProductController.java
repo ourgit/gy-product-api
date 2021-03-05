@@ -4665,7 +4665,7 @@ public class ProductController extends BaseController {
      */
     public CompletionStage<Result> listHomepageSearchKeywords(Http.Request request) {
         return CompletableFuture.supplyAsync(() -> {
-            String jsonCacheKey = cacheUtils.getShopKeywordsJsonCache();
+            String jsonCacheKey = cacheUtils.getSearchKeywordsJsonCache();
             Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
             if (cacheOptional.isPresent()) {
                 String node = cacheOptional.get();
