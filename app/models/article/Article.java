@@ -32,10 +32,6 @@ public class Article extends Model {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "uid")
-    @JsonDeserialize(using = EscapeHtmlSerializer.class)
-    private long uid;
-
     @Column(name = "title")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     private String title;//文章标题
@@ -77,6 +73,10 @@ public class Article extends Model {
     @Column(name = "head_pic")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     private String headPic;
+
+    @Column(name = "tags")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    private String tags;
 
     @Column(name = "views")
     private long views;
@@ -275,12 +275,12 @@ public class Article extends Model {
         this.comments = comments;
     }
 
-    public long getUid() {
-        return uid;
+    public String getTags() {
+        return tags;
     }
 
-    public void setUid(long uid) {
-        this.uid = uid;
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 
     @Override
