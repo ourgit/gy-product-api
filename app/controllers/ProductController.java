@@ -4,10 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import constants.BusinessConstant;
-import io.ebean.Ebean;
-import io.ebean.Expr;
-import io.ebean.ExpressionList;
-import io.ebean.PagedList;
+import io.ebean.*;
 import models.cart.ShoppingCart;
 import models.enroll.*;
 import models.groupon.Groupon;
@@ -72,6 +69,9 @@ public class ProductController extends BaseController {
 
     public static final String ATTR_KEY = "attr";
     public static final String VALUE_KEY = "value";
+
+    public static final int SHOP_VIEW = 2;
+    public static final int PRODUCT_SHOP_VIEW = 1;
 
 
     /**
@@ -670,10 +670,14 @@ public class ProductController extends BaseController {
                     log.setUserName(memberInCache.nickName);
                     log.setPhoneNumber(memberInCache.phoneNumber);
                     Product product = Product.find.byId(productId);
-                    if (null != product) log.setShopId(product.shopId);
+                    if (null != product){
+                        log.setShopId(product.shopId);
+                        updateShowView(product.shopId,PRODUCT_SHOP_VIEW);
+                    }
                     log.setCreateTime(dateUtils.getCurrentTimeBySecond());
                     log.save();
                 }
+
             });
         }
     }
@@ -2700,7 +2704,27 @@ public class ProductController extends BaseController {
                 }
             }
             result.put("isFavShop", isFavShop);
+            updateShowView(id,SHOP_VIEW);
             return ok(result);
+        });
+    }
+
+    private void updateShowView(long shopId,int view) {
+        CompletableFuture.runAsync(() -> {
+            String sql = "UPDATE " +
+                    "    `v1_shop` AS `dest`, " +
+                    "    ( SELECT * FROM `v1_shop` " +
+                    "        WHERE id = :id  limit 1" +
+                    "    ) AS `src`" +
+                    "   SET" +
+                    "       `dest`.`views` = `src`.`views`+ :views " +
+                    "   WHERE" +
+                    "   dest.id = :id " +
+                    ";";
+            SqlUpdate sqlUpdate = Ebean.createSqlUpdate(sql);
+            sqlUpdate.setParameter("id", shopId);
+            sqlUpdate.setParameter("views", view);
+            sqlUpdate.executeNow();
         });
     }
 
@@ -3073,7 +3097,7 @@ public class ProductController extends BaseController {
                     if (!ValidationUtil.isEmpty(result)) return ok(result);
                 }
                 ObjectNode result = getShopNodes(page, filter, tag, request);
-                cache.set(key, Json.stringify(result), 2 * 60);
+                cache.set(key, Json.stringify(result), 60);
                 return ok(result);
             });
         } else {
