@@ -3145,6 +3145,7 @@ public class ProductController extends BaseController {
 
     private void retrieveShopTopProducts(Shop each) {
         List<Product> products = Product.find.query().where()
+                .eq("status",Product.STATUS_ON_SHELVE)
                 .eq("shopId", each.id)
                 .orderBy().desc("placeShopTop")
                 .orderBy().desc("sort")
@@ -4681,7 +4682,7 @@ public class ProductController extends BaseController {
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             result.set("list", Json.toJson(list));
-            cache.set(jsonCacheKey, Json.stringify(result));
+            cache.set(jsonCacheKey, Json.stringify(result),60);
             return ok(result);
         });
     }
