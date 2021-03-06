@@ -306,7 +306,7 @@ public class ArticleController extends BaseController {
                     "        WHERE id = :articleId  limit 1" +
                     "    ) AS `src`" +
                     "   SET" +
-                    "       `dest`.`views` = `src`.`views`+ 1," +
+                    "       `dest`.`views` = `src`.`views`+ 1 " +
                     "   WHERE  dest.id = :articleId " +
                     ";";
             SqlUpdate sqlUpdate = Ebean.createSqlUpdate(sql);

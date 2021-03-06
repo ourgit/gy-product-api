@@ -1615,11 +1615,10 @@ public class ProductController extends BaseController {
                 if (!ValidationUtil.isEmpty(result)) return ok(result);
             }
             long minToday = dateUtils.getTodayMinTimestamp();
-            long maxToday = minToday + 24 * 3600;
+//            long maxToday = minToday + 24 * 3600;
             List<Product> list = Product.find.query().where()
                     .eq("status", Product.STATUS_ON_SHELVE)
                     .ge("beginTime", minToday)
-                    .le("endTime", maxToday)
                     .orderBy().desc("sort")
                     .orderBy().desc("id")
                     .findList();
