@@ -66,6 +66,8 @@ public class ArticleController extends BaseController {
             List<ArticleCategory> categoryList = ArticleCategory.find.query().where()
                     .eq("status", ArticleCategory.SHOW)
                     .ge("categoryType", ArticleCategory.TYPE_DISCOVER)
+                    .orderBy().desc("sort")
+                    .orderBy().desc("id")
                     .findList();
             ArrayNode nodes = Json.newArray();
             categoryList.forEach((each) -> {

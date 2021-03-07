@@ -2239,7 +2239,7 @@ public class ProductController extends BaseController {
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             result.set("list", Json.toJson(list));
-            result.put("pages", pagedList.getTotalPageCount());
+            result.put("hasNext", pagedList.hasNext());
             return ok(result);
         });
     }
@@ -3145,7 +3145,7 @@ public class ProductController extends BaseController {
 
     private void retrieveShopTopProducts(Shop each) {
         List<Product> products = Product.find.query().where()
-                .eq("status",Product.STATUS_ON_SHELVE)
+                .eq("status", Product.STATUS_ON_SHELVE)
                 .eq("shopId", each.id)
                 .orderBy().desc("placeShopTop")
                 .orderBy().desc("sort")
@@ -4682,7 +4682,7 @@ public class ProductController extends BaseController {
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             result.set("list", Json.toJson(list));
-            cache.set(jsonCacheKey, Json.stringify(result),60);
+            cache.set(jsonCacheKey, Json.stringify(result), 60);
             return ok(result);
         });
     }
@@ -4711,7 +4711,7 @@ public class ProductController extends BaseController {
                     .findPagedList();
             ObjectNode result = Json.newObject();
             result.set("list", Json.toJson(pagedList.getList()));
-            result.put("pages", pagedList.getTotalPageCount());
+            result.put("hasNext", pagedList.hasNext());
             result.put(CODE, CODE200);
             return ok(result);
         });
