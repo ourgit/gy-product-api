@@ -26,6 +26,9 @@ public class BrowseLog extends Model {
     @Column(name = "user_name")
     private String userName;
 
+    @Column(name = "avatar")
+    private String avatar;
+
     @Column(name = "phone_number")
     private String phoneNumber;
 
@@ -94,5 +97,13 @@ public class BrowseLog extends Model {
 
     public void setShopId(long shopId) {
         this.shopId = shopId;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

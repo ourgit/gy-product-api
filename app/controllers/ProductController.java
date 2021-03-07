@@ -669,6 +669,7 @@ public class ProductController extends BaseController {
                     log.setUid(memberInCache.id);
                     log.setUserName(memberInCache.nickName);
                     log.setPhoneNumber(memberInCache.phoneNumber);
+                    log.setAvatar(memberInCache.avatar);
                     Product product = Product.find.byId(productId);
                     if (null != product) {
                         log.setShopId(product.shopId);

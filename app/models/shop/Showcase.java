@@ -34,7 +34,6 @@ public class Showcase extends Model {
     public String images;//联系电话
 
     @Column(name = "image_count")
-    @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public long imageCount;//联系电话
 
     @Column(name = "shop_name")
