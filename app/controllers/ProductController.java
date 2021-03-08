@@ -1615,17 +1615,16 @@ public class ProductController extends BaseController {
                 String result = (String) jsonCache.get();
                 if (!ValidationUtil.isEmpty(result)) return ok(result);
             }
-            long minToday = dateUtils.getTodayMinTimestamp();
-//            long maxToday = minToday + 24 * 3600;
+            long currentTime = dateUtils.getCurrentTimeBySecond();
             List<Product> list = Product.find.query().where()
                     .eq("status", Product.STATUS_ON_SHELVE)
-                    .ge("beginTime", minToday)
+                    .le("beginTime", currentTime)
+                    .ge("endTime", currentTime)
                     .orderBy().desc("sort")
                     .orderBy().desc("id")
                     .findList();
             LocalDateTime today = LocalDateTime.now();
             int hour = today.getHour();
-            long currentTime = dateUtils.getCurrentTimeBySecond();
             list.parallelStream().forEach((each) -> {
                 each.setDetails("");
                 each.setSketch("");
