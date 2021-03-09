@@ -3869,21 +3869,7 @@ public class ProductController extends BaseController {
                     .eq("placeTop", true)
                     .orderBy().desc("sort")
                     .orderBy().asc("id")
-                    .setMaxRows(9)
                     .findList();
-//            list.parallelStream().forEach((each) -> {
-//                CouponConfig couponConfig = CouponConfig.find.query()
-//                        .where().eq("status", CouponConfig.STATUS_ENABLE)
-//                        .icontains("shopIds", "/" + each.id + "/")
-//                        .orderBy().desc("amount")
-//                        .setMaxRows(1)
-//                        .findOne();
-//                if (null != couponConfig) {
-//                    couponConfig.setShopIds("");
-//                    couponConfig.setShopNames("");
-//                    each.couponConfig = couponConfig;
-//                }
-//            });
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             result.set("list", Json.toJson(list));
