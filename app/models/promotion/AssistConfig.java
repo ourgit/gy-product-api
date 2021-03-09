@@ -70,6 +70,9 @@ public class AssistConfig extends Model {
     @Column(name = "use_system_rules")
     public boolean useSystemRules;
 
+    @Column(name = "limit_location")
+    public String limitLocation = "";
+
     @Transient
     public boolean available;
 
@@ -253,6 +256,14 @@ public class AssistConfig extends Model {
 
     public void setCouponProductPrice(long couponProductPrice) {
         this.couponProductPrice = couponProductPrice;
+    }
+
+    public String getLimitLocation() {
+        return limitLocation;
+    }
+
+    public void setLimitLocation(String limitLocation) {
+        this.limitLocation = limitLocation;
     }
 
     @Override
