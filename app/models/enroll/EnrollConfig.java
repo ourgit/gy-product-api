@@ -1,7 +1,9 @@
 package models.enroll;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import io.ebean.Finder;
 import io.ebean.Model;
+import myannotation.DateSerializer;
 
 import javax.persistence.*;
 
@@ -44,6 +46,8 @@ public class EnrollConfig extends Model {
     @Column(name = "content")
     public String content;//活动规则内容与说明
 
+    @Column(name = "button_name")
+    public String buttonName;
 
     @Column(name = "update_time")
     public long updateTime;
@@ -134,5 +138,13 @@ public class EnrollConfig extends Model {
 
     public void setUpdateTime(long updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public String getButtonName() {
+        return buttonName;
+    }
+
+    public void setButtonName(String buttonName) {
+        this.buttonName = buttonName;
     }
 }
