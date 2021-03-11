@@ -41,7 +41,6 @@ import javax.validation.constraints.NotNull;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.sql.Array;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -542,6 +541,7 @@ public class ProductController extends BaseController {
             if (product.activityType == Order.ORDER_ACTIVITY_TYPE_GROUPON_SUPER) {
                 getGrouponDetailForProduct(product);
             }
+            businessUtils.setEnrollButtonName(product);
             ObjectNode node = (ObjectNode) Json.toJson(product);
             node.remove("virtualCount");
             node.remove("virtualAmount");
@@ -582,6 +582,8 @@ public class ProductController extends BaseController {
             return ok(node);
         });
     }
+
+
 
     private boolean isHit(Set<Long> selfCategorySet, ArrayNode categoryIdArray) {
         boolean hit = false;

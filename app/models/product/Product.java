@@ -233,6 +233,9 @@ public class Product extends Model {
     @Transient
     public Groupon groupon;
 
+    @Transient
+    public String buttonName = "";
+
     public static Finder<Long, Product> find = new Finder<>(Product.class);
 
     public long getId() {

@@ -6,6 +6,7 @@ import constants.BusinessConstant;
 import io.ebean.Ebean;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
+import models.enroll.EnrollConfig;
 import models.product.*;
 import models.system.ParamConfig;
 import models.user.Member;
@@ -581,6 +582,7 @@ public class BizUtils {
             product.wishAmount = getProductViews(product.id);
         }
         if (viewType != HOT_VIEW_DETAIL) deductProduct(product);
+        setEnrollButtonName(product);
     }
 
     private void deductProduct(Product product) {
@@ -941,6 +943,20 @@ public class BizUtils {
         result.put("code", 200);
         result.set("list", Json.toJson(list));
         cache.set(jsonCacheKey, Json.stringify(result));
+    }
+
+    public  void setEnrollButtonName(Product product){
+        String buttonName = "";
+        if(product.productType == Product.TYPE_ENROLL){
+            EnrollConfig enrollConfig = EnrollConfig.find.query().where().eq("productId",product.id)
+                    .orderBy().desc("id")
+                    .setMaxRows(1)
+                    .findOne();
+            if(null != enrollConfig){
+                buttonName = enrollConfig.buttonName;
+            }
+        }
+      product.buttonName = buttonName;
     }
 
 }
