@@ -503,16 +503,16 @@ public class ProductController extends BaseController {
             businessUtils.increaseProductViews(productId, HOT_VIEW_DETAIL);
             if (null != memberInCache) businessUtils.updateViewsAvatars(productId, memberInCache);
             addBrowseLog(productId, memberInCache);
-//            if (jsonCache.isPresent()) {
-//                String result = (String) jsonCache.get();
-//                if (!ValidationUtil.isEmpty(result)) {
-//                    ObjectNode node = (ObjectNode) Json.parse(result);
-//                    if (null != memberInCache) {
-//                        setUserFav(productId, memberInCache, node);
-//                    }
-//                    return ok(node);
-//                }
-//            }
+            if (jsonCache.isPresent()) {
+                String result = (String) jsonCache.get();
+                if (!ValidationUtil.isEmpty(result)) {
+                    ObjectNode node = (ObjectNode) Json.parse(result);
+                    if (null != memberInCache) {
+                        setUserFav(productId, memberInCache, node);
+                    }
+                    return ok(node);
+                }
+            }
             Product product = Product.find.query().where().eq("id", productId)
                     .eq("status", Product.STATUS_ON_SHELVE).setMaxRows(1).findOne();
             if (null == product) return okCustomJson(CODE40002, "该商品不存在或已下架");
@@ -582,7 +582,6 @@ public class ProductController extends BaseController {
             return ok(node);
         });
     }
-
 
 
     private boolean isHit(Set<Long> selfCategorySet, ArrayNode categoryIdArray) {
@@ -3030,7 +3029,7 @@ public class ProductController extends BaseController {
 
 
     /**
-     * @api {POST} /v1/p/shop_products/:shopId/?page= 47商户商品列表，用于搜索
+     * @api {POST} /v1/p/shop_products/?page= 47商户商品列表，用于搜索
      * @apiName listShopProducts
      * @apiGroup Product
      * @apiParam {int} [page] 页面
@@ -3462,11 +3461,11 @@ public class ProductController extends BaseController {
      */
     public CompletionStage<Result> listActivityAvatars(Http.Request request, long activityType) {
         return CompletableFuture.supplyAsync(() -> {
-            long minTime = dateUtils.getTodayMinTimestamp();
+//            long minTime = dateUtils.getTodayMinTimestamp();
             List<String> avatars = ProductSkuAvatar.find.query()
                     .select("avatar")
                     .where().eq("activityType", activityType)
-                    .ge("createTime", minTime)
+//                    .ge("createTime", minTime)
                     .orderBy().desc("id")
                     .setMaxRows(10)
                     .findSingleAttributeList();
@@ -3483,13 +3482,7 @@ public class ProductController extends BaseController {
      * @apiGroup Product
      * @apiSuccess (Success 200) {int} code 200 请求成功
      */
-    /**
-     * @api {GET}  /v1/p/activity_users/  18活动用户数量
-     * @apiName listActivityUsers
-     * @apiGroup Product
-     * @apiSuccess (Success 200) {int} code 200 请求成功
-     */
-    public CompletionStage<Result> listActivityUsers(Http.Request request) {
+    public CompletionStage<Result> listActivityUsers(Http.Request request,long productId) {
         return CompletableFuture.supplyAsync(() -> {
             String today = dateUtils.getToday();
             long minTime = dateUtils.getTodayMinTimestamp();

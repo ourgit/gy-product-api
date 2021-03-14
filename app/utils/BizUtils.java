@@ -677,6 +677,8 @@ public class BizUtils {
                 productSkuAvatar.setProductId(productId);
                 productSkuAvatar.setAvatar(member.avatar);
                 productSkuAvatar.setCreateTime(currentTime);
+                Product product = getProduct(productId);
+                if (null != product) productSkuAvatar.setActivityType(product.activityType);
             }
             productSkuAvatar.setAmount(productSkuAvatar.amount + 1);
             productSkuAvatar.save();
@@ -945,18 +947,18 @@ public class BizUtils {
         cache.set(jsonCacheKey, Json.stringify(result));
     }
 
-    public  void setEnrollButtonName(Product product){
+    public void setEnrollButtonName(Product product) {
         String buttonName = "";
-        if(product.productType == Product.TYPE_ENROLL){
-            EnrollConfig enrollConfig = EnrollConfig.find.query().where().eq("productId",product.id)
+        if (product.productType == Product.TYPE_ENROLL) {
+            EnrollConfig enrollConfig = EnrollConfig.find.query().where().eq("productId", product.id)
                     .orderBy().desc("id")
                     .setMaxRows(1)
                     .findOne();
-            if(null != enrollConfig){
+            if (null != enrollConfig) {
                 buttonName = enrollConfig.buttonName;
             }
         }
-      product.buttonName = buttonName;
+        product.buttonName = buttonName;
     }
 
 }
