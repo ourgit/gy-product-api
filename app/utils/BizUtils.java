@@ -609,15 +609,19 @@ public class BizUtils {
             if (type != HOT_VIEW_DETAIL) each.setDetails("");
             each.soldAmount = each.soldAmount + each.virtualAmount;
             each.virtualAmount = 0;
-            ProductSku sku = ProductSku.find.query().where()
+            List<ProductSku> skuList = ProductSku.find.query().where()
                     .eq("productId", each.id)
                     .orderBy().asc("price")
                     .orderBy().asc("id")
-                    .setMaxRows(1).findOne();
-            if (null != sku) {
-                sku.award = getMaxAward(each.id);
-                each.defaultSku = sku;
+                    .findList();
+            for (ProductSku sku : skuList) {
+                if (sku.stock > 0) {
+                    sku.award = getMaxAward(each.id);
+                    each.defaultSku = sku;
+                    break;
+                }
             }
+
             if (type == HOT_VIEW_DETAIL) {
                 ExpressionList<ProductParam> expressionList = ProductParam.find.query().where()
                         .eq("productId", each.id);
