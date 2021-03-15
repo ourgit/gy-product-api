@@ -3482,27 +3482,27 @@ public class ProductController extends BaseController {
      * @apiGroup Product
      * @apiSuccess (Success 200) {int} code 200 请求成功
      */
-    public CompletionStage<Result> listActivityUsers(Http.Request request,long productId) {
+    public CompletionStage<Result> listActivityUsers(Http.Request request, long productId) {
         return CompletableFuture.supplyAsync(() -> {
             String today = dateUtils.getToday();
             long minTime = dateUtils.getTodayMinTimestamp();
-            long flashSalesJoinUsers = 0;
-            long grouponJoinUsers = 0;
-            TypeOrderStat flashSales = TypeOrderStat.find.query()
-                    .where().eq("date", today)
-                    .eq("activityType", Product.ACTIVITY_TYPE_FLASH)
-                    .orderBy().desc("id")
-                    .setMaxRows(1)
-                    .findOne();
-            if (null != flashSales) flashSalesJoinUsers = flashSales.amount;
+//            long grouponJoinUsers = 0;
+//            TypeOrderStat flashSales = TypeOrderStat.find.query()
+//                    .where().eq("date", today)
+//                    .eq("activityType", Product.ACTIVITY_TYPE_FLASH)
+//                    .orderBy().desc("id")
+//                    .setMaxRows(1)
+//                    .findOne();
+//            if (null != flashSales) flashSalesJoinUsers = flashSales.amount;
+//
+//            TypeOrderStat groupon = TypeOrderStat.find.query()
+//                    .where().eq("date", today)
+//                    .ge("activityType", Order.ORDER_ACTIVITY_TYPE_GROUPON)
+//                    .orderBy().desc("id")
+//                    .setMaxRows(1)
+//                    .findOne();
+//            if (null != groupon) grouponJoinUsers = groupon.amount;
 
-            TypeOrderStat groupon = TypeOrderStat.find.query()
-                    .where().eq("date", today)
-                    .ge("activityType", Order.ORDER_ACTIVITY_TYPE_GROUPON)
-                    .orderBy().desc("id")
-                    .setMaxRows(1)
-                    .findOne();
-            if (null != groupon) grouponJoinUsers = groupon.amount;
 
             List<String> flashSaleAvatars = ProductSkuAvatar.find.query()
                     .select("avatar")
@@ -3512,6 +3512,13 @@ public class ProductController extends BaseController {
                     .setMaxRows(10)
                     .findSingleAttributeList();
 
+
+            long flashSalesJoinUsers = ProductSkuAvatar.find.query()
+                    .where().eq("activityType", Product.ACTIVITY_TYPE_FLASH)
+                    .ge("createTime", minTime)
+                    .findCount();
+
+
             List<String> grouponAvatars = ProductSkuAvatar.find.query()
                     .select("avatar").where()
                     .ge("activityType", Order.ORDER_ACTIVITY_TYPE_GROUPON)
@@ -3519,6 +3526,11 @@ public class ProductController extends BaseController {
                     .orderBy().desc("id")
                     .setMaxRows(10)
                     .findSingleAttributeList();
+
+            long grouponJoinUsers = ProductSkuAvatar.find.query()
+                    .where().ge("activityType", Order.ORDER_ACTIVITY_TYPE_GROUPON)
+                    .ge("createTime", minTime)
+                    .findCount();
 
             ObjectNode resultNode = Json.newObject();
             resultNode.put(CODE, CODE200);
