@@ -1,7 +1,9 @@
 package models.product;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.ebean.Finder;
 import io.ebean.Model;
+import myannotation.EscapeHtmlSerializer;
 
 import javax.persistence.*;
 
@@ -32,11 +34,18 @@ public class BrowseLog extends Model {
     @Column(name = "phone_number")
     private String phoneNumber;
 
+    @Column(name = "uuid")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    private String uuid;
+
     @Column(name = "shop_id")
     private long shopId;
 
     @Column(name = "create_time")
     private long createTime;
+
+    @Column(name = "update_time")
+    private long updateTime;
 
     @Transient
     public Product product;
@@ -105,5 +114,21 @@ public class BrowseLog extends Model {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public long getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(long updateTime) {
+        this.updateTime = updateTime;
     }
 }
