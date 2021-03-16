@@ -576,11 +576,11 @@ public class BizUtils {
         }
         setFlashSaleProductDetail(product, viewType);
         increaseProductViews(product.id, viewType);
-        if (hasBegin) {
-            setBuyerAvatar(product);
-        } else {
-            product.wishAmount = getProductViews(product.id);
-        }
+//        if (hasBegin) {
+//            setBuyerAvatar(product);
+//        } else {
+        product.wishAmount = getProductViews(product.id);
+//        }
         if (viewType != HOT_VIEW_DETAIL) deductProduct(product);
         setEnrollButtonName(product);
     }
