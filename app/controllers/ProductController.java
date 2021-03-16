@@ -502,7 +502,7 @@ public class ProductController extends BaseController {
             if (productId < 1) return okCustomJson(CODE40001, "参数错误");
             businessUtils.increaseProductViews(productId, HOT_VIEW_DETAIL);
             if (null != memberInCache) businessUtils.updateViewsAvatars(productId, memberInCache);
-            addBrowseLog(productId, memberInCache);
+//            addBrowseLog(productId, memberInCache);
             if (jsonCache.isPresent()) {
                 String result = (String) jsonCache.get();
                 if (!ValidationUtil.isEmpty(result)) {
@@ -653,34 +653,6 @@ public class ProductController extends BaseController {
                     .orderBy().asc("id")
                     .findList();
             sku.detailList.addAll(details);
-        }
-    }
-
-    private void addBrowseLog(long productId, Member memberInCache) {
-        if (null != memberInCache) {
-            CompletableFuture.runAsync(() -> {
-                BrowseLog log = BrowseLog.find.query().where()
-                        .eq("uid", memberInCache.id)
-                        .eq("productId", productId)
-                        .setMaxRows(1)
-                        .findOne();
-                if (null == log) {
-                    log = new BrowseLog();
-                    log.setProductId(productId);
-                    log.setUid(memberInCache.id);
-                    log.setUserName(memberInCache.nickName);
-                    log.setPhoneNumber(memberInCache.phoneNumber);
-                    log.setAvatar(memberInCache.avatar);
-                    Product product = Product.find.byId(productId);
-                    if (null != product) {
-                        log.setShopId(product.shopId);
-                        updateShowView(product.shopId, PRODUCT_SHOP_VIEW);
-                    }
-                    log.setCreateTime(dateUtils.getCurrentTimeBySecond());
-                    log.save();
-                }
-
-            });
         }
     }
 
@@ -4729,6 +4701,56 @@ public class ProductController extends BaseController {
             result.put(CODE, CODE200);
             return ok(result);
         });
+    }
+
+    /**
+     * @api {POST} /v1/p/browse_log/ 77更新浏览记录
+     * @apiName updateBrowseLog
+     * @apiGroup Product
+     * @apiParam {long} productId 商品id
+     * @apiParam {long} shopId 店铺id
+     * @apiParam {String} uuid uuid
+     */
+    @BodyParser.Of(BodyParser.Json.class)
+    public CompletionStage<Result> updateBrowseLog(Http.Request request) {
+        JsonNode requestNode = request.body().asJson();
+        return businessUtils.getUserIdByAuthToken2(request).thenApplyAsync((memberInCache) -> {
+            if (null != memberInCache && null != requestNode) {
+                long productId = requestNode.findPath("productId").asLong();
+                long shopId = requestNode.findPath("shopId").asLong();
+                String uuid = requestNode.findPath("uuid").asText();
+                BrowseLog log = BrowseLog.find.query().where()
+                        .eq("uuid", uuid)
+                        .setMaxRows(1)
+                        .findOne();
+                long currentTime = dateUtils.getCurrentTimeBySecond();
+                if (null == log) {
+                    log = new BrowseLog();
+                    log.setProductId(productId);
+                    log.setUid(memberInCache.id);
+                    log.setUuid(uuid);
+                    log.setUserName(memberInCache.nickName);
+                    log.setPhoneNumber(memberInCache.phoneNumber);
+                    log.setAvatar(memberInCache.avatar);
+                    log.setShopId(shopId);
+                    updateShowView(shopId, PRODUCT_SHOP_VIEW);
+                    log.setUpdateTime(currentTime);
+                    log.setCreateTime(currentTime);
+                    log.save();
+                } else {
+                    log.setUpdateTime(currentTime);
+                    log.save();
+                }
+            }
+            return okJSON200();
+        });
+    }
+
+
+    private void addBrowseLog(long productId, Member memberInCache) {
+        if (null != memberInCache) {
+
+        }
     }
 
 }
