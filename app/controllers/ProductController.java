@@ -4746,11 +4746,4 @@ public class ProductController extends BaseController {
         });
     }
 
-
-    private void addBrowseLog(long productId, Member memberInCache) {
-        if (null != memberInCache) {
-
-        }
-    }
-
 }
