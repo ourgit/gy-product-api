@@ -621,6 +621,9 @@ public class BizUtils {
                     break;
                 }
             }
+            if (null == each.defaultSku && skuList.size() > 0) {
+                each.defaultSku = skuList.get(0);
+            }
 
             if (type == HOT_VIEW_DETAIL) {
                 ExpressionList<ProductParam> expressionList = ProductParam.find.query().where()
