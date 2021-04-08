@@ -1690,55 +1690,49 @@ public class ProductController extends BaseController {
             LocalDateTime today = LocalDateTime.now();
             ExpressionList<Product> expressionList = Product.find.query().where()
                     .eq("status", Product.STATUS_ON_SHELVE);
-            if (searchType == 1) {
-                Arrays.stream(splitResult).forEach((keyword) -> {
-                    if (!ValidationUtil.isEmpty(keyword)) {
-                        expressionList.or(Expr.icontains("name", keyword), Expr.icontains("keywords", keyword));
-                    }
-                });
-                PagedList<Product> pagedList = expressionList
-                        .orderBy().desc("sort")
-                        .orderBy().desc("id")
-                        .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_20)
-                        .setMaxRows(BusinessConstant.PAGE_SIZE_20)
-                        .findPagedList();
-                List<Product> list = pagedList.getList();
-                long currentTime = Timestamp.valueOf(today).getTime() / 1000;
-                int hour = today.getHour();
-                list.parallelStream().forEach((each) -> businessUtils.autoSetProduct(currentTime, hour, each, HOT_VIEW_LIST));
-                if (list.size() > 0) {
-                    Member member = businessUtils.getUserIdByAuthToken(request);
-                    if (null != member) uid = member.id;
-                    saveSearchKeyword(splitResult, uid);
-                    int resultCount = pagedList.getTotalCount();
-                    result.put("resultCount", resultCount);
+            Arrays.stream(splitResult).forEach((keyword) -> {
+                if (!ValidationUtil.isEmpty(keyword)) {
+                    expressionList.or(Expr.icontains("name", keyword), Expr.icontains("keywords", keyword));
                 }
-                result.set("list", Json.toJson(list));
-                result.put("pages", pagedList.getTotalPageCount());
-                boolean hasNext = pagedList.hasNext();
-                result.put("hasNext", hasNext);
-                if (page <= 1) cache.set(jsonCacheKey, result.toString(), 30);
-            } else if (searchType == 2) {
-                ExpressionList<Brand> brandExpressionList = Brand.find.query().where().eq("status", STATUS_NORMAL);
-                Arrays.stream(splitResult).forEach((keyword) -> brandExpressionList.icontains("name", keyword));
-                PagedList<Brand> pagedList = brandExpressionList
-                        .orderBy().desc("sort")
-                        .orderBy().desc("id")
-                        .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_20)
-                        .setMaxRows(BusinessConstant.PAGE_SIZE_20)
-                        .findPagedList();
-                List<Brand> list = pagedList.getList();
-                if (list.size() > 0) {
-                    saveSearchKeyword(splitResult, uid);
-                    int resultCount = pagedList.getTotalCount();
-                    result.put("resultCount", resultCount);
-                }
-                result.set("list", Json.toJson(list));
-                result.put("pages", pagedList.getTotalPageCount());
-                boolean hasNext = pagedList.hasNext();
-                result.put("hasNext", hasNext);
-                cache.set(jsonCacheKey, result.toString(), 30);
+            });
+            PagedList<Product> pagedList = expressionList
+                    .orderBy().desc("sort")
+                    .orderBy().desc("id")
+                    .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_20)
+                    .setMaxRows(BusinessConstant.PAGE_SIZE_20)
+                    .findPagedList();
+            List<Product> list = pagedList.getList();
+            long currentTime = Timestamp.valueOf(today).getTime() / 1000;
+            int hour = today.getHour();
+            list.parallelStream().forEach((each) -> businessUtils.autoSetProduct(currentTime, hour, each, HOT_VIEW_LIST));
+            if (list.size() > 0) {
+                Member member = businessUtils.getUserIdByAuthToken(request);
+                if (null != member) uid = member.id;
+                saveSearchKeyword(splitResult, uid);
+                int resultCount = pagedList.getTotalCount();
+                result.put("resultCount", resultCount);
             }
+            result.set("list", Json.toJson(list));
+            result.put("pages", pagedList.getTotalPageCount());
+            boolean hasNext = pagedList.hasNext();
+            result.put("hasNext", hasNext);
+            if (page <= 1) cache.set(jsonCacheKey, result.toString(), 30);
+
+            ExpressionList<Shop> shopExpressionList = Shop.find.query().where()
+                    .eq("status", Shop.STATUS_NORMAL);
+            Arrays.stream(splitResult).forEach((keyword) -> {
+                if (!ValidationUtil.isEmpty(keyword)) {
+                    shopExpressionList.or(Expr.icontains("name", keyword), Expr.icontains("digest", keyword));
+                }
+            });
+            int shopHitCount = shopExpressionList.findCount();
+            List<Shop> shopList = shopExpressionList
+                    .orderBy().desc("sort")
+                    .orderBy().desc("id")
+                    .setMaxRows(3)
+                    .findList();
+            result.put("shopHitCount", shopHitCount);
+            result.set("shopList", Json.toJson(shopList));
             return ok(result);
         });
     }
