@@ -1677,14 +1677,14 @@ public class ProductController extends BaseController {
             String jsonCacheKey = cacheUtils.getProductSearchJsonCache(filterTrimWithoutSpace, searchType, page);
             String[] splitResult = filterTrim.split(" ");
 //            //第一页需要缓存，从缓存读取
-            boolean needCache = (page <= 1);
-            if (needCache) {
-                Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
-                if (cacheOptional.isPresent()) {
-                    String node = cacheOptional.get();
-                    if (null != node) return ok(Json.parse(node));
-                }
-            }
+//            boolean needCache = (page <= 1);
+//            if (needCache) {
+//                Optional<String> cacheOptional = cache.getOptional(jsonCacheKey);
+//                if (cacheOptional.isPresent()) {
+//                    String node = cacheOptional.get();
+//                    if (null != node) return ok(Json.parse(node));
+//                }
+//            }
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             LocalDateTime today = LocalDateTime.now();
@@ -1716,7 +1716,6 @@ public class ProductController extends BaseController {
             result.put("pages", pagedList.getTotalPageCount());
             boolean hasNext = pagedList.hasNext();
             result.put("hasNext", hasNext);
-            if (page <= 1) cache.set(jsonCacheKey, result.toString(), 30);
 
             ExpressionList<Shop> shopExpressionList = Shop.find.query().where()
                     .eq("status", Shop.STATUS_NORMAL);
@@ -1733,6 +1732,8 @@ public class ProductController extends BaseController {
                     .findList();
             result.put("shopHitCount", shopHitCount);
             result.set("shopList", Json.toJson(shopList));
+
+//            if (page <= 1) cache.set(jsonCacheKey, result.toString(), 30);
             return ok(result);
         });
     }
