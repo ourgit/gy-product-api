@@ -1,5 +1,6 @@
 package utils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import constants.BusinessConstant;
@@ -968,4 +969,45 @@ public class BizUtils {
         product.buttonName = buttonName;
     }
 
+    public void filterProductUniImageCategory(String categoryIdStr, ProductUniImage productUniImage) {
+        if (!ValidationUtil.isEmpty(categoryIdStr)) {
+            JsonNode categoryJson = Json.parse(categoryIdStr);
+            if (null != categoryJson) {
+                ArrayNode nodes = (ArrayNode) categoryJson;
+                if (null != nodes && nodes.size() > 0) {
+                    long categoryId = nodes.get(0).asLong();
+                    if (productUniImage.prependImg1CategoryId.length() > 4) {
+                        if (productUniImage.prependImg1CategoryId.indexOf(categoryId + "") < 0) {
+                            productUniImage.setPrependImg1("");
+                        }
+                    }
+                    if (productUniImage.prependImg2CategoryId.length() > 4) {
+                        if (productUniImage.prependImg2CategoryId.indexOf(categoryId + "") < 0) {
+                            productUniImage.setPrependImg2("");
+                        }
+                    }
+                    if (productUniImage.prependImg3CategoryId.length() > 4) {
+                        if (productUniImage.prependImg3CategoryId.indexOf(categoryId + "") < 0) {
+                            productUniImage.setPrependImg3("");
+                        }
+                    }
+                    if (productUniImage.appendImg1CategoryId.length() > 4) {
+                        if (productUniImage.appendImg1CategoryId.indexOf(categoryId + "") < 0) {
+                            productUniImage.setAppendImg1("");
+                        }
+                    }
+                    if (productUniImage.appendImg2CategoryId.length() > 4) {
+                        if (productUniImage.appendImg2CategoryId.indexOf(categoryId + "") < 0) {
+                            productUniImage.setAppendImg2("");
+                        }
+                    }
+                    if (productUniImage.appendImg3CategoryId.length() > 4) {
+                        if (productUniImage.appendImg3CategoryId.indexOf(categoryId + "") < 0) {
+                            productUniImage.setAppendImg3("");
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

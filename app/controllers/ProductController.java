@@ -550,6 +550,8 @@ public class ProductController extends BaseController {
             node.set("images", Json.toJson(images));
             ProductUniImage productUniImage = ProductUniImage.find.query().orderBy().asc("id").setMaxRows(1).findOne();
             if (null != productUniImage) {
+                String categoryIdStr = product.categoryId;
+                businessUtils.filterProductUniImageCategory(categoryIdStr, productUniImage);
                 node.set("productUniImage", Json.toJson(productUniImage));
             }
             //是否收收藏
