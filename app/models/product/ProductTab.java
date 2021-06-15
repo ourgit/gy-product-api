@@ -16,6 +16,9 @@ import java.util.List;
 @Table(name = "v1_product_tab")
 public class ProductTab extends Model {
 
+    public static final int TAB_TYPE_NORMAL = 1;
+    public static final int TAB_TYPE_WORK_CLASSIFY = 2;
+
     @Column(name = "id")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,6 +38,9 @@ public class ProductTab extends Model {
 
     @Column(name = "sort")
     public int sort;
+
+    @Column(name = "tab_type")
+    public int tabType;
 
     @Column(name = "enable")
     public boolean enable;
@@ -93,6 +99,14 @@ public class ProductTab extends Model {
 
     public void setEnable(boolean enable) {
         this.enable = enable;
+    }
+
+    public int getTabType() {
+        return tabType;
+    }
+
+    public void setTabType(int tabType) {
+        this.tabType = tabType;
     }
 
     @Override

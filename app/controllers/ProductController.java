@@ -1839,7 +1839,7 @@ public class ProductController extends BaseController {
     }
 
     /**
-     * @api {GET} /v1/p/product_tabs/ 24商品TAB列表
+     * @api {GET} /v1/p/product_tabs/?tabType= 24商品TAB列表
      * @apiName listProductTabs
      * @apiGroup Product
      * @apiSuccess (Success 200){int} code 200
@@ -1848,8 +1848,8 @@ public class ProductController extends BaseController {
      * @apiSuccess (Success 200) {string} classifyCode 归集编号
      * @apiSuccess (Success 200) {int} sort 排序值
      */
-    public CompletionStage<Result> listProductTabs() {
-        String jsonCacheKey = cacheUtils.getProductTabJsonCache();
+    public CompletionStage<Result> listProductTabs(int tabType) {
+        String jsonCacheKey = cacheUtils.getProductTabJsonCache(tabType);
         return asyncCacheApi.getOptional(jsonCacheKey).thenApplyAsync((cacheOptional) -> {
             if (cacheOptional.isPresent()) {
                 String node = (String) cacheOptional.get();
@@ -1857,6 +1857,7 @@ public class ProductController extends BaseController {
             }
             List<ProductTab> list = ProductTab.find.query().where()
                     .eq("enable", true)
+                    .eq("tabType", tabType)
                     .orderBy().desc("sort")
                     .orderBy().desc("id")
                     .findList();
@@ -4407,7 +4408,7 @@ public class ProductController extends BaseController {
             List<ProductTabProducts> tabProducts = ProductTabProducts.find.query().where()
                     .eq("productId", updateProduct.id).findList();
             Ebean.deleteAll(tabProducts);
-            businessUtils.updateTabCache();
+            businessUtils.updateTabCache(ProductTab.TAB_TYPE_NORMAL);
 
             List<ProductTag> productTags = ProductTag.find.query().where()
                     .eq("productId", updateProduct.id).findList();

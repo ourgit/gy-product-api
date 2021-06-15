@@ -285,8 +285,8 @@ public class CacheUtils {
         return SEARCH_KEYWORDS_JSON_CACHE + ":" + from;
     }
 
-    public String getProductTabJsonCache() {
-        return PRODUCT_TAB_JSON_CACHE;
+    public String getProductTabJsonCache(int tabType) {
+        return PRODUCT_TAB_JSON_CACHE + tabType;
     }
 
     public String getProductsByCoupon(long couponId) {

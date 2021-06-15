@@ -933,8 +933,8 @@ public class BizUtils {
         cache.set(key, defaultList);
     }
 
-    public void updateTabCache() {
-        String jsonCacheKey = cacheUtils.getProductTabJsonCache();
+    public void updateTabCache(int tabType) {
+        String jsonCacheKey = cacheUtils.getProductTabJsonCache(tabType);
         cache.remove(jsonCacheKey);
         List<ProductTab> list = ProductTab.find.query().where()
                 .eq("enable", true)

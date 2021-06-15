@@ -18,7 +18,7 @@ POST        /v1/p/products/                                        controllers.P
 GET         /v1/p/products/:productId/                             controllers.ProductController.getProductDetail(request:Request,productId:Long)
 POST        /v1/p/product_search/                                  controllers.ProductController.searchProducts(request:Request)
 GET         /v1/p/search_keywords/                                 controllers.ProductController.searchKeywords(request:Request)
-GET         /v1/p/product_tabs/                                    controllers.ProductController.listProductTabs
+GET         /v1/p/product_tabs/                                    controllers.ProductController.listProductTabs(tabType:Int?=1)
 GET         /v1/p/product_tabs/:id/                                controllers.ProductController.getProductTab(request:Request,id:Long,page:Int?=1)
 GET         /v1/p/default_recommend_products/                      controllers.ProductController.listDefaultRecommendProducts(request:Request,page:Int?=1)
 GET         /v1/p/more_products/                                   controllers.ProductController.listMoreProducts(request:Request,productId:Long?=0)
