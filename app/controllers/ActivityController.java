@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import constants.BusinessConstant;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
+import models.activity.ActivityConfig;
 import models.product.Product;
 import models.promotion.*;
 import models.user.AssistMember;
@@ -30,6 +31,7 @@ public class ActivityController extends BaseController {
     public static final String ASSIST_LIST_LAUNCHERS_JSON_CACHE = "ASSIST_LIST_LAUNCHERS_JSON_CACHE:";
     public static final String BARGAIN_LIST_JSON_CACHE = "BARGAIN_LIST_JSON_CACHE:";
     public static final String BARGAIN_LIST_LAUNCHERS_JSON_CACHE = "BARGAIN_LIST_LAUNCHERS_JSON_CACHE:";
+    public static final String LATEST_ACTIVITY_LIST_JSON_CACHE = "LATEST_ACTIVITY_LIST_JSON_CACHE:";
 
     /**
      * @api {GET} /v1/p/assist_config_list/?page=&status 01助力配置列表
@@ -349,4 +351,38 @@ public class ActivityController extends BaseController {
         });
     }
 
+    /**
+     * @api {GET} /v1/p/latest_activity_config/ 07获取最新活动详情
+     * @apiName getLatestActivityConfig
+     * @apiGroup ACTIVITY
+     * @apiSuccess (Success 200){int} id id
+     * @apiSuccess (Success 200){String} images 图片
+     * @apiSuccess (Success 200){String} title 标题
+     * @apiSuccess (Success 200){String} note 活动说明
+     * @apiSuccess (Success 200){long}  beginTime 开始时间
+     * @apiSuccess (Success 200){long} openTime 活动时间
+     * @apiSuccess (Success 200){long} attenders 参与人数
+     * @apiSuccess (Success 200){long} createdTime 提交时间
+     */
+    public CompletionStage<Result> getLatestActivityConfig() {
+        String jsonCacheKey = LATEST_ACTIVITY_LIST_JSON_CACHE;
+        return asyncCacheApi.getOptional(jsonCacheKey).thenApplyAsync((jsonCache) -> {
+            if (jsonCache.isPresent()) {
+                String result = (String) jsonCache.get();
+                if (!ValidationUtil.isEmpty(result)) return ok(Json.parse(result));
+            }
+            ActivityConfig activityConfig = ActivityConfig.find.query().where()
+                    .ge("status", ActivityConfig.STATUS_NOT_START)
+                    .le("status", ActivityConfig.STATUS_PROCESSING)
+                    .orderBy().desc("id")
+                    .setMaxRows(1)
+                    .findOne();
+            if (null != activityConfig) {
+                ObjectNode result = (ObjectNode) Json.toJson(activityConfig);
+                result.put(CODE, CODE200);
+                asyncCacheApi.set(jsonCacheKey, Json.stringify(result), 60);
+                return ok(result);
+            } else return okJSON200();
+        });
+    }
 }
