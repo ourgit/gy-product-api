@@ -38,6 +38,10 @@ public class ActivityLog extends Model implements Serializable {
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String avatar;
 
+    @Column(name = "shop_avatar")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    public String shopAvatar;
+
     @Column(name = "phone_number")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String phoneNumber;
@@ -160,5 +164,29 @@ public class ActivityLog extends Model implements Serializable {
 
     public void setCreatedTime(long createdTime) {
         this.createdTime = createdTime;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
+    }
+
+    public String getFilter() {
+        return filter;
+    }
+
+    public void setFilter(String filter) {
+        this.filter = filter;
+    }
+
+    public String getShopAvatar() {
+        return shopAvatar;
+    }
+
+    public void setShopAvatar(String shopAvatar) {
+        this.shopAvatar = shopAvatar;
     }
 }

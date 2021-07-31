@@ -11,8 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "v1_activity_user_total_log")
-public class ActivityUserTotalLog extends Model implements Serializable {
+@Table(name = "v1_activity_shop_total_log")
+public class ActivityShopTotalLog extends Model implements Serializable {
     public static final int STATUS_NOT_TAKE = 1;
     public static final int STATUS_TAKEN = 2;
     private static final long serialVersionUID = 2577034218067124977L;
@@ -22,15 +22,15 @@ public class ActivityUserTotalLog extends Model implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     public long id;
 
-    @Column(name = "uid")
-    public long uid;
+    @Column(name = "shop_id")
+    public long shopId;
 
     @Column(name = "config_id")
     public long configId;
 
-    @Column(name = "user_name")
+    @Column(name = "shop_name")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
-    public String userName;
+    public String shopName;
 
     @Column(name = "config_title")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
@@ -39,10 +39,6 @@ public class ActivityUserTotalLog extends Model implements Serializable {
     @Column(name = "avatar")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String avatar;
-
-    @Column(name = "phone_number")
-    @JsonDeserialize(using = EscapeHtmlSerializer.class)
-    public String phoneNumber;
 
     @Column(name = "amount")
     public long amount;
@@ -53,9 +49,6 @@ public class ActivityUserTotalLog extends Model implements Serializable {
     @Column(name = "create_time")
     public long createdTime;
 
-    @Column(name = "status")
-    public int status;
-
     @Column(name = "filter")
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String filter;
@@ -63,7 +56,7 @@ public class ActivityUserTotalLog extends Model implements Serializable {
     @Transient
     public List<ActivityLog> activityLogList = new ArrayList();
 
-    public static Finder<Long, ActivityUserTotalLog> find = new Finder<>(ActivityUserTotalLog.class);
+    public static Finder<Long, ActivityShopTotalLog> find = new Finder<>(ActivityShopTotalLog.class);
 
     public long getId() {
         return id;
@@ -73,12 +66,12 @@ public class ActivityUserTotalLog extends Model implements Serializable {
         this.id = id;
     }
 
-    public long getUid() {
-        return uid;
+    public long getShopId() {
+        return shopId;
     }
 
-    public void setUid(long uid) {
-        this.uid = uid;
+    public void setShopId(long shopId) {
+        this.shopId = shopId;
     }
 
     public long getConfigId() {
@@ -89,12 +82,12 @@ public class ActivityUserTotalLog extends Model implements Serializable {
         this.configId = configId;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getShopName() {
+        return shopName;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setShopName(String shopName) {
+        this.shopName = shopName;
     }
 
     public String getConfigTitle() {
@@ -113,14 +106,6 @@ public class ActivityUserTotalLog extends Model implements Serializable {
         this.avatar = avatar;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
     public long getAmount() {
         return amount;
     }
@@ -135,14 +120,6 @@ public class ActivityUserTotalLog extends Model implements Serializable {
 
     public void setCreatedTime(long createdTime) {
         this.createdTime = createdTime;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
     }
 
     public String getFilter() {

@@ -5,6 +5,8 @@ import constants.BusinessConstant;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
 import models.activity.ActivityConfig;
+import models.activity.ActivityShopTotalLog;
+import models.activity.ActivityUserTotalLog;
 import models.product.Product;
 import models.promotion.*;
 import models.user.AssistMember;
@@ -16,6 +18,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import utils.ValidationUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -32,6 +35,7 @@ public class ActivityController extends BaseController {
     public static final String BARGAIN_LIST_JSON_CACHE = "BARGAIN_LIST_JSON_CACHE:";
     public static final String BARGAIN_LIST_LAUNCHERS_JSON_CACHE = "BARGAIN_LIST_LAUNCHERS_JSON_CACHE:";
     public static final String LATEST_ACTIVITY_LIST_JSON_CACHE = "LATEST_ACTIVITY_LIST_JSON_CACHE:";
+    public static final String LATEST_ACTIVITY_ATTENDS_LIST_JSON_CACHE = "LATEST_ACTIVITY_ATTENDS_LIST_JSON_CACHE:";
 
     /**
      * @api {GET} /v1/p/assist_config_list/?page=&status 01助力配置列表
@@ -385,4 +389,50 @@ public class ActivityController extends BaseController {
             } else return okJSON200();
         });
     }
+
+
+    /**
+     * @api {GET} /v1/p/top_attends/ 08联单排行
+     * @apiName getTopAttends
+     * @apiGroup ACTIVITY
+     * @apiSuccess (Success 200){Array}  userStatList 买家排行榜
+     * @apiSuccess (Success 200){Array}  shopStatList 商家排行榜
+     * @apiSuccess (Success 200){String} images 图片
+     */
+    public CompletionStage<Result> getTopAttends() {
+        String jsonCacheKey = LATEST_ACTIVITY_ATTENDS_LIST_JSON_CACHE;
+        return asyncCacheApi.getOptional(jsonCacheKey).thenApplyAsync((jsonCache) -> {
+            if (jsonCache.isPresent()) {
+                String result = (String) jsonCache.get();
+                if (!ValidationUtil.isEmpty(result)) return ok(Json.parse(result));
+            }
+            List<ActivityUserTotalLog> userStatList = new ArrayList<>();
+            List<ActivityShopTotalLog> shopStatList = new ArrayList<>();
+            ActivityConfig activityConfig = ActivityConfig.find.query().where()
+                    .eq("status", ActivityConfig.STATUS_PROCESSING)
+                    .orderBy().desc("id")
+                    .setMaxRows(1)
+                    .findOne();
+            if (null != activityConfig) {
+                userStatList = ActivityUserTotalLog.find.query().where()
+                        .eq("configId", activityConfig.id)
+                        .orderBy().desc("amount")
+                        .orderBy().asc("id")
+                        .findList();
+                shopStatList = ActivityShopTotalLog.find.query().where()
+                        .eq("configId", activityConfig.id)
+                        .orderBy().desc("amount")
+                        .orderBy().asc("id")
+                        .findList();
+            }
+            ObjectNode result = Json.newObject();
+            result.put(CODE, CODE200);
+            result.set("userStatList", Json.toJson(userStatList));
+            result.set("shopStatList", Json.toJson(shopStatList));
+            asyncCacheApi.set(jsonCacheKey, Json.stringify(result), 60);
+            return ok(result);
+        });
+    }
+
+
 }
