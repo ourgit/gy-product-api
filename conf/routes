@@ -113,7 +113,7 @@ GET         /v1/p/assist_succeed_launchers/:assistId/              controllers.A
 GET         /v1/p/bargain_config_list/                             controllers.ActivityController.listBargainConfigs(request: Request,page:Int?=1)
 GET         /v1/p/bargain/:id/                                     controllers.ActivityController.getBargainDetail(request: Request,id:Long)
 GET         /v1/p/bargain_succeed_launchers/:bargainId/            controllers.ActivityController.listBargainSucceedLaunchers(request: Request,bargainId:Long,page:Int?=1)
-GET         /v1/p/latest_activity_config/                          controllers.ActivityController.getLatestActivityConfig
+GET         /v1/p/latest_activity_config/                          controllers.ActivityController.getLatestActivityConfig(request: Request)
 GET         /v1/p/top_attends/                                     controllers.ActivityController.getTopAttends
 
 GET         /v1/p/show_case_list/                                  controllers.ProductController.listShowCase(request:Request, shopId:Long?=0,page:Int?=1, title:String?="")
