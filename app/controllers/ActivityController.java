@@ -5,6 +5,7 @@ import constants.BusinessConstant;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
 import models.activity.ActivityConfig;
+import models.activity.ActivityLog;
 import models.activity.ActivityShopTotalLog;
 import models.activity.ActivityUserTotalLog;
 import models.product.Product;
@@ -368,7 +369,7 @@ public class ActivityController extends BaseController {
      * @apiSuccess (Success 200){long} attenders 参与人数
      * @apiSuccess (Success 200){long} createdTime 提交时间
      */
-    public CompletionStage<Result> getLatestActivityConfig() {
+    public CompletionStage<Result> getLatestActivityConfig(Http.Request request) {
         String jsonCacheKey = LATEST_ACTIVITY_LIST_JSON_CACHE;
         return asyncCacheApi.getOptional(jsonCacheKey).thenApplyAsync((jsonCache) -> {
             if (jsonCache.isPresent()) {
@@ -383,7 +384,27 @@ public class ActivityController extends BaseController {
                     .findOne();
             if (null != activityConfig) {
                 ObjectNode result = (ObjectNode) Json.toJson(activityConfig);
+                String realName = "";
+                String phoneNumber = "";
+                String place = "";
+                Member member = businessUtils.getUserIdByAuthToken(request);
+                if (null != member) {
+                    ActivityLog firstLog = ActivityLog.find.query().where()
+                            .eq("configId", activityConfig.id)
+                            .eq("uid", member.id)
+                            .orderBy().asc("id")
+                            .setMaxRows(1)
+                            .findOne();
+                    if (null != firstLog) {
+                        realName = firstLog.userName;
+                        phoneNumber = firstLog.phoneNumber;
+                        place = firstLog.place;
+                    }
+                }
                 result.put(CODE, CODE200);
+                result.put("realName", realName);
+                result.put("phoneNumber", phoneNumber);
+                result.put("place", place);
                 asyncCacheApi.set(jsonCacheKey, Json.stringify(result), 60);
                 return ok(result);
             } else return okJSON200();
@@ -408,6 +429,7 @@ public class ActivityController extends BaseController {
             }
             List<ActivityUserTotalLog> userStatList = new ArrayList<>();
             List<ActivityShopTotalLog> shopStatList = new ArrayList<>();
+            List<ActivityShopTotalLog> leadStatList = new ArrayList<>();
             ActivityConfig activityConfig = ActivityConfig.find.query().where()
                     .eq("status", ActivityConfig.STATUS_PROCESSING)
                     .orderBy().desc("id")
@@ -424,11 +446,17 @@ public class ActivityController extends BaseController {
                         .orderBy().desc("amount")
                         .orderBy().asc("id")
                         .findList();
+                leadStatList = ActivityShopTotalLog.find.query().where()
+                        .eq("configId", activityConfig.id)
+                        .orderBy().desc("leadAmount")
+                        .orderBy().asc("id")
+                        .findList();
             }
             ObjectNode result = Json.newObject();
             result.put(CODE, CODE200);
             result.set("userStatList", Json.toJson(userStatList));
             result.set("shopStatList", Json.toJson(shopStatList));
+            result.set("leadStatList", Json.toJson(leadStatList));
             asyncCacheApi.set(jsonCacheKey, Json.stringify(result), 60);
             return ok(result);
         });

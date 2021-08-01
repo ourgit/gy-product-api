@@ -46,6 +46,10 @@ public class ActivityLog extends Model implements Serializable {
     @JsonDeserialize(using = EscapeHtmlSerializer.class)
     public String phoneNumber;
 
+    @Column(name = "place")
+    @JsonDeserialize(using = EscapeHtmlSerializer.class)
+    public String place;
+
     @Column(name = "order_id")
     public long orderId;
 
@@ -57,6 +61,12 @@ public class ActivityLog extends Model implements Serializable {
 
     @Column(name = "shop_name")
     public String shopName;
+
+    @Column(name = "lead_shop_id")
+    public long leadShopId;
+
+    @Column(name = "lead_shop_name")
+    public String leadShopName;
 
     @Column(name = "create_time")
     public long createdTime;
@@ -188,5 +198,29 @@ public class ActivityLog extends Model implements Serializable {
 
     public void setShopAvatar(String shopAvatar) {
         this.shopAvatar = shopAvatar;
+    }
+
+    public long getLeadShopId() {
+        return leadShopId;
+    }
+
+    public void setLeadShopId(long leadShopId) {
+        this.leadShopId = leadShopId;
+    }
+
+    public String getLeadShopName() {
+        return leadShopName;
+    }
+
+    public void setLeadShopName(String leadShopName) {
+        this.leadShopName = leadShopName;
+    }
+
+    public String getPlace() {
+        return place;
+    }
+
+    public void setPlace(String place) {
+        this.place = place;
     }
 }

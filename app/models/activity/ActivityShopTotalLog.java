@@ -43,6 +43,9 @@ public class ActivityShopTotalLog extends Model implements Serializable {
     @Column(name = "amount")
     public long amount;
 
+    @Column(name = "lead_amount")
+    public long leadAmount;
+
     @Column(name = "total_money")
     public long totalMoney;
 
@@ -136,5 +139,13 @@ public class ActivityShopTotalLog extends Model implements Serializable {
 
     public void setTotalMoney(long totalMoney) {
         this.totalMoney = totalMoney;
+    }
+
+    public long getLeadAmount() {
+        return leadAmount;
+    }
+
+    public void setLeadAmount(long leadAmount) {
+        this.leadAmount = leadAmount;
     }
 }
