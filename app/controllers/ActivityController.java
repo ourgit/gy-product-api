@@ -462,5 +462,71 @@ public class ActivityController extends BaseController {
         });
     }
 
+    /**
+     * @api {GET} /v1/p/user_attends/:uid/?page= 09用户参与记录
+     * @apiName listUserAttends
+     * @apiGroup ACTIVITY
+     */
+    public CompletionStage<Result> listUserAttends(long uid, int page) {
+        return CompletableFuture.supplyAsync(() -> {
+            ActivityConfig activityConfig = ActivityConfig.find.query().where()
+                    .eq("status", ActivityConfig.STATUS_PROCESSING)
+                    .orderBy().desc("id")
+                    .setMaxRows(1)
+                    .findOne();
+            ObjectNode result = Json.newObject();
+            result.put(CODE, CODE200);
+            List<ActivityLog> list = new ArrayList<>();
+            if (null != activityConfig) {
+                PagedList<ActivityLog> pagedList = ActivityLog.find.query().where()
+                        .eq("configId", activityConfig.id)
+                        .eq("uid", uid)
+                        .orderBy().asc("id")
+                        .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                        .findPagedList();
+                list = pagedList.getList();
+                int pages = pagedList.getTotalPageCount();
+                boolean hasNext = pagedList.hasNext();
+                result.put("pages", pages);
+                result.put("hasNext", hasNext);
+            }
+            result.set("list", Json.toJson(list));
+            return ok(result);
+        });
+    }
+
+    /**
+     * @api {GET} /v1/p/shop_attends/:shopId/?page= 09店铺参与记录
+     * @apiName listShopAttends
+     * @apiGroup ACTIVITY
+     */
+    public CompletionStage<Result> listShopAttends(long shopId, int page) {
+        return CompletableFuture.supplyAsync(() -> {
+            ActivityConfig activityConfig = ActivityConfig.find.query().where()
+                    .eq("status", ActivityConfig.STATUS_PROCESSING)
+                    .orderBy().desc("id")
+                    .setMaxRows(1)
+                    .findOne();
+            ObjectNode result = Json.newObject();
+            result.put(CODE, CODE200);
+            List<ActivityLog> list = new ArrayList<>();
+            if (null != activityConfig) {
+                PagedList<ActivityLog> pagedList = ActivityLog.find.query().where()
+                        .eq("configId", activityConfig.id)
+                        .eq("shopId", shopId)
+                        .orderBy().asc("id")
+                        .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                        .findPagedList();
+                list = pagedList.getList();
+                int pages = pagedList.getTotalPageCount();
+                boolean hasNext = pagedList.hasNext();
+                result.put("pages", pages);
+                result.put("hasNext", hasNext);
+            }
+            result.set("list", Json.toJson(list));
+            return ok(result);
+        });
+    }
+
 
 }
