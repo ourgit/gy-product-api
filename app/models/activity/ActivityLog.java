@@ -59,6 +59,9 @@ public class ActivityLog extends Model implements Serializable {
     @Column(name = "shop_id")
     public long shopId;
 
+    @Column(name = "money")
+    public long money;
+
     @Column(name = "shop_name")
     public String shopName;
 
@@ -222,5 +225,13 @@ public class ActivityLog extends Model implements Serializable {
 
     public void setPlace(String place) {
         this.place = place;
+    }
+
+    public long getMoney() {
+        return money;
+    }
+
+    public void setMoney(long money) {
+        this.money = money;
     }
 }
