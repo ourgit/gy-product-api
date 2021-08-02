@@ -524,6 +524,15 @@ public class ActivityController extends BaseController {
                 boolean hasNext = pagedList.hasNext();
                 result.put("pages", pages);
                 result.put("hasNext", hasNext);
+                if (page == 1) {
+                    ActivityShopTotalLog shopStat = ActivityShopTotalLog.find.query().where()
+                            .eq("shopId", shopId)
+                            .setMaxRows(1)
+                            .findOne();
+                    if (null != shopStat) {
+                        result.set("shopStat", Json.toJson(shopStat));
+                    }
+                }
             }
             result.set("list", Json.toJson(list));
             return ok(result);
@@ -549,9 +558,18 @@ public class ActivityController extends BaseController {
             int pages = pagedList.getTotalPageCount();
             boolean hasNext = pagedList.hasNext();
             ObjectNode result = Json.newObject();
-            result.put(CODE,CODE200);
+            result.put(CODE, CODE200);
             result.put("pages", pages);
             result.put("hasNext", hasNext);
+            if (page == 1) {
+                ActivityUserTotalLog userTotalLog = ActivityUserTotalLog.find.query().where()
+                        .eq("uid", memberInCache.id)
+                        .setMaxRows(1)
+                        .findOne();
+                if (null != userTotalLog) {
+                    result.set("userStat", Json.toJson(userTotalLog));
+                }
+            }
             result.set("list", Json.toJson(list));
             return ok(result);
         });
