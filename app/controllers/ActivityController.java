@@ -529,4 +529,30 @@ public class ActivityController extends BaseController {
     }
 
 
+    /**
+     * @api {GET} /v1/p/my_attends/?page= 09我的参与记录
+     * @apiName listMyAttends
+     * @apiGroup ACTIVITY
+     */
+    public CompletionStage<Result> listMyAttends(Http.Request request, int page) {
+        return businessUtils.getUserIdByAuthToken2(request).thenApplyAsync((memberInCache) -> {
+            if (null == memberInCache) return unauth403();
+            PagedList<ActivityLog> pagedList = ActivityLog.find.query().where()
+                    .eq("uid", memberInCache.id)
+                    .orderBy().desc("id")
+                    .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                    .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                    .findPagedList();
+            List<ActivityLog> list = pagedList.getList();
+            int pages = pagedList.getTotalPageCount();
+            boolean hasNext = pagedList.hasNext();
+            ObjectNode result = Json.newObject();
+            result.put(CODE,CODE200);
+            result.put("pages", pages);
+            result.put("hasNext", hasNext);
+            result.set("list", Json.toJson(list));
+            return ok(result);
+        });
+    }
+
 }
