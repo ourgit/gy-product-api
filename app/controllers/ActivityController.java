@@ -483,6 +483,7 @@ public class ActivityController extends BaseController {
                         .eq("uid", uid)
                         .orderBy().asc("id")
                         .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                        .setMaxRows(BusinessConstant.PAGE_SIZE_10)
                         .findPagedList();
                 list = pagedList.getList();
                 int pages = pagedList.getTotalPageCount();
@@ -516,6 +517,7 @@ public class ActivityController extends BaseController {
                         .eq("shopId", shopId)
                         .orderBy().asc("id")
                         .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                        .setMaxRows(BusinessConstant.PAGE_SIZE_10)
                         .findPagedList();
                 list = pagedList.getList();
                 int pages = pagedList.getTotalPageCount();
