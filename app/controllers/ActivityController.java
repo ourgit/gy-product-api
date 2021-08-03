@@ -440,16 +440,19 @@ public class ActivityController extends BaseController {
                         .eq("configId", activityConfig.id)
                         .orderBy().desc("amount")
                         .orderBy().asc("id")
+                        .setMaxRows(BusinessConstant.PAGE_SIZE_10)
                         .findList();
                 shopStatList = ActivityShopTotalLog.find.query().where()
                         .eq("configId", activityConfig.id)
                         .orderBy().desc("amount")
                         .orderBy().asc("id")
+                        .setMaxRows(BusinessConstant.PAGE_SIZE_10)
                         .findList();
                 leadStatList = ActivityShopTotalLog.find.query().where()
                         .eq("configId", activityConfig.id)
                         .orderBy().desc("leadAmount")
                         .orderBy().asc("id")
+                        .setMaxRows(BusinessConstant.PAGE_SIZE_10)
                         .findList();
             }
             ObjectNode result = Json.newObject();
@@ -575,4 +578,75 @@ public class ActivityController extends BaseController {
         });
     }
 
+
+    /**
+     * @api {GET} /v1/p/top_trends_by_type/?trendsType=&page= 08根据类型查询联单列表
+     * @apiName listTopAttendsByType
+     * @apiGroup ACTIVITY
+     * @apiSuccess (Success 200){Array}  userStatList 买家排行榜
+     * @apiSuccess (Success 200){Array}  shopStatList 商家排行榜
+     * @apiSuccess (Success 200){String} images 图片
+     */
+    public CompletionStage<Result> listTopAttendsByType(int trendsType, int page) {
+        return CompletableFuture.supplyAsync(() -> {
+            ActivityConfig activityConfig = ActivityConfig.find.query().where()
+                    .eq("status", ActivityConfig.STATUS_PROCESSING)
+                    .orderBy().desc("id")
+                    .setMaxRows(1)
+                    .findOne();
+            ObjectNode result = Json.newObject();
+            result.put(CODE, CODE200);
+            int pages = 0;
+            boolean hasNext = false;
+            if (null != activityConfig) {
+                switch (trendsType) {
+                    case 1: {
+                        PagedList<ActivityUserTotalLog> pagedList = ActivityUserTotalLog.find.query().where()
+                                .eq("configId", activityConfig.id)
+                                .orderBy().desc("amount")
+                                .orderBy().asc("id")
+                                .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                                .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                                .findPagedList();
+                        List<ActivityUserTotalLog> userStatList = pagedList.getList();
+                        pages = pagedList.getTotalPageCount();
+                        hasNext = pagedList.hasNext();
+                        result.set("userStatList", Json.toJson(userStatList));
+                        break;
+                    }
+                    case 2: {
+                        PagedList<ActivityShopTotalLog> pagedList = ActivityShopTotalLog.find.query().where()
+                                .eq("configId", activityConfig.id)
+                                .orderBy().desc("amount")
+                                .orderBy().asc("id")
+                                .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                                .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                                .findPagedList();
+                        List<ActivityShopTotalLog> shopStatList = pagedList.getList();
+                        pages = pagedList.getTotalPageCount();
+                        hasNext = pagedList.hasNext();
+                        result.set("shopStatList", Json.toJson(shopStatList));
+                        break;
+                    }
+                    case 3: {
+                        PagedList<ActivityShopTotalLog> pagedList = ActivityShopTotalLog.find.query().where()
+                                .eq("configId", activityConfig.id)
+                                .orderBy().desc("leadAmount")
+                                .orderBy().asc("id")
+                                .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
+                                .setMaxRows(BusinessConstant.PAGE_SIZE_10)
+                                .findPagedList();
+                        List<ActivityShopTotalLog> leadStatList = pagedList.getList();
+                        pages = pagedList.getTotalPageCount();
+                        hasNext = pagedList.hasNext();
+                        result.set("leadStatList", Json.toJson(leadStatList));
+                        break;
+                    }
+                }
+            }
+            result.put("pages", pages);
+            result.put("hasNext", hasNext);
+            return ok(result);
+        });
+    }
 }
