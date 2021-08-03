@@ -493,6 +493,16 @@ public class ActivityController extends BaseController {
                 boolean hasNext = pagedList.hasNext();
                 result.put("pages", pages);
                 result.put("hasNext", hasNext);
+                if (page == 1) {
+                    ActivityUserTotalLog userStat = ActivityUserTotalLog.find.query().where()
+                            .eq("uid", uid)
+                            .eq("configId",activityConfig.id)
+                            .setMaxRows(1)
+                            .findOne();
+                    if (null != userStat) {
+                        result.set("userStat", Json.toJson(userStat));
+                    }
+                }
             }
             result.set("list", Json.toJson(list));
             return ok(result);
