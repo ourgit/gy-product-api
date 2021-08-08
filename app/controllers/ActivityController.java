@@ -400,6 +400,8 @@ public class ActivityController extends BaseController {
                         phoneNumber = firstLog.phoneNumber;
                         place = firstLog.place;
                     }
+                    if (ValidationUtil.isEmpty(phoneNumber)) phoneNumber = member.phoneNumber;
+                    if (ValidationUtil.isEmpty(phoneNumber)) phoneNumber = member.contactNumber;
                 }
                 result.put(CODE, CODE200);
                 result.put("realName", realName);
@@ -496,7 +498,7 @@ public class ActivityController extends BaseController {
                 if (page == 1) {
                     ActivityUserTotalLog userStat = ActivityUserTotalLog.find.query().where()
                             .eq("uid", uid)
-                            .eq("configId",activityConfig.id)
+                            .eq("configId", activityConfig.id)
                             .setMaxRows(1)
                             .findOne();
                     if (null != userStat) {
