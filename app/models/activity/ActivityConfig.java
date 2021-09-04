@@ -52,6 +52,9 @@ public class ActivityConfig extends Model implements Serializable {
     @Column(name = "status")
     public int status;
 
+    @Column(name = "need_pay")
+    public boolean needPay;
+
     public static Finder<Long, ActivityConfig> find = new Finder<>(ActivityConfig.class);
 
     public long getId() {
@@ -132,6 +135,14 @@ public class ActivityConfig extends Model implements Serializable {
 
     public void setBeginTime(long beginTime) {
         this.beginTime = beginTime;
+    }
+
+    public boolean isNeedPay() {
+        return needPay;
+    }
+
+    public void setNeedPay(boolean needPay) {
+        this.needPay = needPay;
     }
 
     @Override
