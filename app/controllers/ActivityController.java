@@ -565,6 +565,7 @@ public class ActivityController extends BaseController {
             if (null == memberInCache) return unauth403();
             PagedList<ActivityLog> pagedList = ActivityLog.find.query().where()
                     .eq("uid", memberInCache.id)
+                    .eq("status", ActivityLog.STATUS_AVAILABLE)
                     .orderBy().desc("id")
                     .setFirstRow((page - 1) * BusinessConstant.PAGE_SIZE_10)
                     .setMaxRows(BusinessConstant.PAGE_SIZE_10)
